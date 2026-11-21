@@ -1,6 +1,6 @@
 {
   "name": "antimars",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Antimars, noyau 1.0, plugin français natif : répondre en paix (dissection, étages, triple sceau homme/planète/vivant), bandeau de la tour au-dessus de chaque réponse avec traducteurs aux étages intermédiaires, sceller la réponse d'une autre IA, compter le coût en secondes de tour Eiffel allumée.",
   "author": { "name": "Garrigue" },
   "license": "CC-BY-4.0 AND MIT",

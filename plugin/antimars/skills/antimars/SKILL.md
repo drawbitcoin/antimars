@@ -5,7 +5,7 @@ description: >
   « réponds en paix », « triple sceau », « Mars Field Intelligence », « the tower »,
   « answer in peace », ou demande une réponse qui pèse son effet sur l'homme, la planète
   et le vivant, ou veut la sortie au format relais de Mars Field Intelligence. Quand la
-  tour monte, elle pose le pictogramme Antimars (bouton pax) en tête de la réponse.
+  tour monte, elle pose le pictogramme Antimars (la tour et une ligne latine) en tête de la réponse.
 metadata:
   version: "1.1.0"
   author: "Garrigue"
@@ -82,11 +82,16 @@ Quand la tour monte (jamais en voie courte), poser le **pictogramme Antimars en 
 
 - **À gauche, la tour** : l'élévation de face de la planche d'Eiffel (1889), tour et racine pied contre pied. Le profil tient en une courbe ; l'arche est en plein cintre, de 73 m de portée ; les trois étages sont des barres pleines, comme les deux socles carrés ; l'antenne monte à 324 m. La pointe droite passe à l'or quand le triple sceau monte. Le maître est `assets/picto-antimars.svg` à la racine du dépôt (calques structure, socles, sceau).
 - **À droite, une ligne latine** : la solution en synthèse, dans un cadre fin au fond de treillis en X. Aucun texte en anglais ni en français dans le pictogramme ; la réponse écrite, elle, reste dans la langue de la question.
+- **En dessous, trois boutons pour aller plus loin**, du plus consommateur au plus léger. Chacun envoie une demande dans la conversation, suivie de la ligne latine :
+  - **ANTIMARS TOWER** : déplier le bandeau complet de cette réponse (≈ 6 000 jetons) ;
+  - **ANTIMARS COUNTER** : le compteur détaillé de cette réponse, avec la compétence `compter` (≈ 300 jetons) ;
+  - **ANTIMARS TRADUCTEUR** : traduire la ligne latine dans la langue de la question, en une ligne (≈ 50 jetons).
+  Les boutons n'apparaissent que là où le widget peut écrire dans la conversation.
 
 1. Écrire la ligne latine : la solution en 4 à 12 mots, latin classique, à l'impératif. Un objet moderne se dit par un mot latin ou une périphrase (une voiture : *vehiculum*). Exemple, pour « quel SUV pour 3 km par jour ? » : *Septem dies itinera nota, deinde minimum elige.*
 2. Lire `assets/picto-antimars.html` dans le dossier de cette compétence. Remplacer `__LATIN__` par la ligne latine (écrire `<`, `>` et `&` sous la forme `&lt;`, `&gt;`, `&amp;`), et `__OR__` par `#D4A72C` si le triple sceau monte, sinon par `currentColor`. Ne rien changer d'autre au gabarit.
 3. Avec un outil de visuel en ligne (par exemple `show_widget`) : passer le gabarit rempli comme code du widget, avant la réponse écrite. Sinon, avec un terminal : `python3 "${CLAUDE_PLUGIN_ROOT}/skills/antimars/scripts/antimars.py" bande sortie.txt --picto --latin "…"` écrit `picto-antimars.html`. Sinon, pas de pictogramme.
-4. Compter le pictogramme : ≈ 350 jetons écrits, ≈ 0,2 Wh, ≈ 0,004 s de tour allumée. L'ajouter à la ligne de compteur.
+4. Compter le pictogramme : ≈ 600 jetons écrits, ≈ 0,4 Wh, ≈ 0,006 s de tour allumée. L'ajouter à la ligne de compteur.
 
 **Bandeau complet**, sur demande (« la tour », « bandeau », « déplie la tour ») : la tour en élévation de face, avec les traducteurs aux étages intermédiaires et les quatre socles ; ≈ 6 000 jetons écrits.
 
