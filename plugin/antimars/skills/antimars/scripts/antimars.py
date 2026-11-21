@@ -1,416 +1,529 @@
 #!/usr/bin/env python3
-"""Antimars · noyau 1.0 · outils de référence.
+"""Antimars · core 1.0 · reference tools.
 
-    python outils/antimars.py valider sortie.txt           # format 1.0 et règles du canon
-    python outils/antimars.py compter sortie.txt --lus 2100  # jetons, Wh, secondes de tour
-    python outils/antimars.py exemples                     # vérifie les dix exemples annotés
+    python tools/antimars.py validate output.txt           # format 1.0 and canon rules
+    python tools/antimars.py count output.txt --read 2100  # tokens, Wh, seconds of tower
+    python tools/antimars.py examples                      # checks the ten annotated examples
+    python tools/antimars.py bande sortie.txt --question "…"   # bandeau Antimars d'une question
+    python tools/antimars.py bande sortie.txt --picto --latin "…"   # le pictogramme, une ligne latine
 
-Bibliothèque standard seulement. Si le paquet jsonschema est installé, le schéma
-officiel est aussi vérifié.
+Standard library only. If the jsonschema package is installed, the official
+schema is checked as well.
+
+The keys and enum values of the JSON block (statut, interpretation, canon, sceau…)
+are the wire format of core 1.0 and stay in French; see the glossary in SPEC.md.
 """
 from __future__ import annotations
 
+import html as _html
 import json
 import math
 import pathlib
 import re
 import sys
 
-RACINE = pathlib.Path(__file__).resolve().parent.parent
-SCHEMA = RACINE / "schema" / "antimars-1.0.schema.json"
-EXEMPLES = RACINE / "exemples" / "exemples-1.0.json"
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+SCHEMA = ROOT / "schema" / "antimars-1.0.schema.json"
+EXAMPLES = ROOT / "examples" / "examples-1.0.json"
+BANDE = ROOT / "assets" / "bande-antimars.html"
+PICTO = ROOT / "assets" / "picto-antimars.html"
+BANDE_MARK = "__ANTIMARS_WINDOW_DATA__"
+PICTO_LATIN, PICTO_GOLD, GOLD = "__LATIN__", "__OR__", "#D4A72C"
 
-SCEAUX = ("homme", "planete", "vivant")
-STATUTS = ("monte", "question_plus_juste", "voie_courte")
+# Wire format 1.0 (French keys, kept as is).
+SEALS = ("homme", "planete", "vivant")                       # human, planet, living
+STATUSES = ("monte", "question_plus_juste", "voie_courte")   # rises, fairer question, short path
 FRAGMENTS = ("entendue", "energie", "pensee", "abstraction", "vivant", "enjeu")
-MANQUE = object()  # distingue un champ absent d'un champ à null
-GROUPES_DE_POIDS = {
+MISSING = object()  # tells an absent field from a field set to null
+WEIGHT_GROUPS = {
     "poids": ("energie", "pensee", "abstraction", "vivant"),
     "piliers": ("geometrie", "rationalite", "creativite", "paix"),
     "echanges": ("geometrie_rationalite", "rationalite_creativite", "creativite_paix", "paix_geometrie"),
 }
+# Annotation seals in examples/examples-1.0.json, in the same order as SEALS.
+ANNOTATION_SEALS = ("human", "planet", "living")
 
-# Compteur : section 5 de la spécification.
-WH_PAR_JETON_ECRIT = 0.0006
-WH_PAR_JETON_LU = 0.00003
-WH_PAR_SECONDE_DE_TOUR = 56.0
-CARACTERES_PAR_JETON = {"fr": 3.6, "en": 4.0, "code": 3.0}
+# Counter: section 5 of the specification.
+WH_PER_WRITTEN_TOKEN = 0.0006
+WH_PER_READ_TOKEN = 0.00003
+WH_PER_TOWER_SECOND = 56.0
+CHARS_PER_TOKEN = {"fr": 3.6, "en": 4.0, "code": 3.0}
 
 
-# --- lecture ----------------------------------------------------------------
+# --- reading ----------------------------------------------------------------
 
-def bloc(texte: str, nom: str):
-    """Contenu du bloc <nom>…</nom>, ou None s'il manque. Un bloc non fermé court jusqu'à la fin."""
-    debut = texte.find(f"<{nom}>")
-    if debut < 0:
+def block(text: str, name: str):
+    """Content of the <name>…</name> block, or None if missing. An unclosed block runs to the end."""
+    start = text.find(f"<{name}>")
+    if start < 0:
         return None
-    debut += len(nom) + 2
-    fin = texte.find(f"</{nom}>", debut)
-    return (texte[debut:] if fin < 0 else texte[debut:fin]).strip()
+    start += len(name) + 2
+    end = text.find(f"</{name}>", start)
+    return (text[start:] if end < 0 else text[start:end]).strip()
 
 
-def lire_json(texte):
-    """Le premier objet JSON lisible d'un texte ; tolère les clôtures ``` et une phrase autour."""
-    if not texte:
+def read_json(text):
+    """The first readable JSON object in a text; tolerates ``` fences and a sentence around it."""
+    if not text:
         return None
-    texte = re.sub(r"```(?:json)?", "", texte)
-    a, b = texte.find("{"), texte.rfind("}")
+    text = re.sub(r"```(?:json)?", "", text)
+    a, b = text.find("{"), text.rfind("}")
     if a < 0 or b <= a:
         return None
     try:
-        objet = json.loads(texte[a:b + 1])
+        obj = json.loads(text[a:b + 1])
     except json.JSONDecodeError:
         return None
-    return objet if isinstance(objet, dict) else None
+    return obj if isinstance(obj, dict) else None
 
 
-def lire_sortie(texte: str):
-    """Découpe une sortie Antimars en (blocs, objet du bloc json ou None)."""
-    blocs = {nom: bloc(texte, nom) for nom in ("dissection", "generation", "json")}
-    source = blocs["json"] if blocs["json"] is not None else texte
-    return blocs, lire_json(source)
+def read_output(text: str):
+    """Splits an Antimars output into (blocks, object of the json block or None)."""
+    blocks = {name: block(text, name) for name in ("dissection", "generation", "json")}
+    source = blocks["json"] if blocks["json"] is not None else text
+    return blocks, read_json(source)
 
 
 # --- canon ------------------------------------------------------------------
 
-def valeur(x):
-    """Un sceau : -1, 0 ou 1 ; None pour tout le reste (true et false ne sont pas des sceaux)."""
+def seal_value(x):
+    """A seal: -1, 0 or 1; None for anything else (true and false are not seals)."""
     if isinstance(x, bool) or not isinstance(x, (int, float)):
         return None
     return int(x) if x in (-1, 0, 1) else None
 
 
-def sceaux_du_canon(canon):
-    """(homme, planete, vivant) lus dans un canon, ou None s'il en manque un."""
+def canon_seals(canon):
+    """(homme, planete, vivant) read from a canon, or None if one is missing."""
     if not isinstance(canon, dict):
         return None
-    valeurs = []
-    for nom in SCEAUX:
-        entree = canon.get(nom)
-        v = valeur(entree.get("sceau")) if isinstance(entree, dict) else None
+    values = []
+    for name in SEALS:
+        entry = canon.get(name)
+        v = seal_value(entry.get("sceau")) if isinstance(entry, dict) else None
         if v is None:
             return None
-        valeurs.append(v)
-    return tuple(valeurs)
+        values.append(v)
+    return tuple(values)
 
 
-def passe(valeurs) -> bool:
-    """Règle 3.4 : aucun −1 et au moins un +1."""
-    return valeurs is not None and min(valeurs) >= 0 and max(valeurs) == 1
+def passes(values) -> bool:
+    """Rule 3.4: no −1 and at least one +1."""
+    return values is not None and min(values) >= 0 and max(values) == 1
 
 
-def statut(objet):
-    return objet.get("statut", "monte") if isinstance(objet, dict) else None
+def status(obj):
+    return obj.get("statut", "monte") if isinstance(obj, dict) else None
 
 
-def ecrire_sceaux(valeurs) -> str:
-    if valeurs is None:
+def format_seals(values) -> str:
+    if values is None:
         return "—"
-    return " ".join({1: "+1", 0: "0", -1: "−1"}[v] for v in valeurs)
+    return " ".join({1: "+1", 0: "0", -1: "−1"}[v] for v in values)
 
 
 # --- validation -------------------------------------------------------------
 
-def _texte(x) -> bool:
+def _text(x) -> bool:
     return isinstance(x, str) and bool(x.strip())
 
 
-def _poids(x) -> bool:
+def _weight(x) -> bool:
     return isinstance(x, (int, float)) and not isinstance(x, bool) and 0 <= x <= 1
 
 
-def erreurs_de_forme(objet) -> list:
-    """Ce qu'exige schema/antimars-1.0.schema.json, vérifié à la main."""
-    if not isinstance(objet, dict):
-        return ["le bloc json n'est pas un objet"]
+def shape_errors(obj) -> list:
+    """What schema/antimars-1.0.schema.json requires, checked by hand."""
+    if not isinstance(obj, dict):
+        return ["the json block is not an object"]
     e = []
-    st = objet.get("statut", "monte")
-    if "statut" in objet and st not in STATUTS:
-        e.append(f"statut inconnu : {st!r}")
-    if "antimars" in objet and not (isinstance(objet["antimars"], str)
-                                    and re.fullmatch(r"1\.[0-9]+", objet["antimars"])):
-        e.append("antimars : version attendue de la forme 1.x")
-    if not _texte(objet.get("reponse")):
-        e.append("reponse manquante ou vide")
-    requis = st != "voie_courte"
+    st = obj.get("statut", "monte")
+    if "statut" in obj and st not in STATUSES:
+        e.append(f"unknown statut: {st!r}")
+    if "antimars" in obj and not (isinstance(obj["antimars"], str)
+                                  and re.fullmatch(r"1\.[0-9]+", obj["antimars"])):
+        e.append("antimars: expected a version of the form 1.x")
+    if not _text(obj.get("reponse")):
+        e.append("reponse missing or empty")
+    required = st != "voie_courte"
 
-    it = objet.get("interpretation", MANQUE)
-    if it is MANQUE:
-        if requis:
-            e.append("interpretation manquante")
+    it = obj.get("interpretation", MISSING)
+    if it is MISSING:
+        if required:
+            e.append("interpretation missing")
     elif not isinstance(it, dict):
-        e.append("interpretation doit être un objet")
+        e.append("interpretation must be an object")
     else:
-        e += [f"interpretation.{k} manquant ou vide" for k in FRAGMENTS if not _texte(it.get(k))]
-        e += _erreurs_poids(it.get("poids", MANQUE), "interpretation.poids", GROUPES_DE_POIDS["poids"])
+        e += [f"interpretation.{k} missing or empty" for k in FRAGMENTS if not _text(it.get(k))]
+        e += _weight_errors(it.get("poids", MISSING), "interpretation.poids", WEIGHT_GROUPS["poids"])
 
-    canon = objet.get("canon", MANQUE)
-    if canon is MANQUE:
-        if requis:
-            e.append("canon manquant")
+    canon = obj.get("canon", MISSING)
+    if canon is MISSING:
+        if required:
+            e.append("canon missing")
     elif not isinstance(canon, dict):
-        e.append("canon doit être un objet")
+        e.append("canon must be an object")
     else:
-        for nom in SCEAUX:
-            entree = canon.get(nom)
-            if not isinstance(entree, dict):
-                e.append(f"canon.{nom} manquant")
+        for name in SEALS:
+            entry = canon.get(name)
+            if not isinstance(entry, dict):
+                e.append(f"canon.{name} missing")
                 continue
-            if valeur(entree.get("sceau")) is None:
-                e.append(f"canon.{nom}.sceau doit valoir -1, 0 ou 1")
-            if not isinstance(entree.get("pourquoi"), str):
-                e.append(f"canon.{nom}.pourquoi manquant")
+            if seal_value(entry.get("sceau")) is None:
+                e.append(f"canon.{name}.sceau must be -1, 0 or 1")
+            if not isinstance(entry.get("pourquoi"), str):
+                e.append(f"canon.{name}.pourquoi missing")
         if "note" in canon and not isinstance(canon["note"], str):
-            e.append("canon.note doit être un texte")
+            e.append("canon.note must be a text")
 
-    raisonnement = objet.get("raisonnement", MANQUE)
-    if raisonnement is MANQUE:
-        if requis:
-            e.append("raisonnement manquant")
-    elif not (isinstance(raisonnement, list) and raisonnement and all(_texte(x) for x in raisonnement)):
-        e.append("raisonnement : liste d'étapes non vides attendue")
+    reasoning = obj.get("raisonnement", MISSING)
+    if reasoning is MISSING:
+        if required:
+            e.append("raisonnement missing")
+    elif not (isinstance(reasoning, list) and reasoning and all(_text(x) for x in reasoning)):
+        e.append("raisonnement: expected a list of non-empty steps")
 
-    if "solution" in objet:
-        if not _texte(objet["solution"]):
-            e.append("solution vide")
-    elif requis:
-        e.append("solution manquante")
+    if "solution" in obj:
+        if not _text(obj["solution"]):
+            e.append("solution empty")
+    elif required:
+        e.append("solution missing")
 
-    if "proto" in objet and not isinstance(objet["proto"], str):
-        e.append("proto doit être un texte")
-    if "code" in objet and not (isinstance(objet["code"], str) and not re.search(r"[\r\n]", objet["code"])):
-        e.append("code : une seule ligne de texte")
-    for groupe in ("piliers", "echanges"):
-        e += _erreurs_poids(objet.get(groupe, MANQUE), groupe, GROUPES_DE_POIDS[groupe])
+    if "proto" in obj and not isinstance(obj["proto"], str):
+        e.append("proto must be a text")
+    if "code" in obj and not (isinstance(obj["code"], str) and not re.search(r"[\r\n]", obj["code"])):
+        e.append("code: a single line of text")
+    for group in ("piliers", "echanges"):
+        e += _weight_errors(obj.get(group, MISSING), group, WEIGHT_GROUPS[group])
     return e
 
 
-def _erreurs_poids(groupe, nom, cles) -> list:
-    if groupe is MANQUE:
+def _weight_errors(group, name, keys) -> list:
+    if group is MISSING:
         return []
-    if not isinstance(groupe, dict):
-        return [f"{nom} doit être un objet"]
-    return [f"{nom}.{k} : nombre de 0 à 1 attendu" for k in cles if k in groupe and not _poids(groupe[k])]
+    if not isinstance(group, dict):
+        return [f"{name} must be an object"]
+    return [f"{name}.{k}: expected a number from 0 to 1" for k in keys if k in group and not _weight(group[k])]
 
 
-def erreurs_schema(objet) -> list:
-    """Écarts au schéma officiel si le paquet jsonschema est installé ; sinon une liste vide."""
+def schema_errors(obj) -> list:
+    """Departures from the official schema if the jsonschema package is installed; otherwise an empty list."""
     try:
         import jsonschema
     except ImportError:
         return []
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
-    validateur = jsonschema.Draft202012Validator(schema)
-    return [f"schéma : {'/'.join(map(str, err.absolute_path)) or '(racine)'} : {err.message}"
-            for err in validateur.iter_errors(objet)]
+    validator = jsonschema.Draft202012Validator(schema)
+    return [f"schema: {'/'.join(map(str, err.absolute_path)) or '(root)'}: {err.message}"
+            for err in validator.iter_errors(obj)]
 
 
-def compter_phrases(texte: str) -> int:
-    """Nombre approximatif de phrases (sert aux avertissements seulement)."""
-    texte = re.sub(r"\s+", " ", (texte or "").strip())
-    if not texte:
+def count_sentences(text: str) -> int:
+    """Approximate number of sentences (used for warnings only)."""
+    text = re.sub(r"\s+", " ", (text or "").strip())
+    if not text:
         return 0
-    return len(re.split(r"(?<=[.!?…])\s+(?=[A-ZÀ-ÖØ-Þ«\"0-9])", texte))
+    return len(re.split(r"(?<=[.!?…])\s+(?=[A-ZÀ-ÖØ-Þ«\"“0-9])", text))
 
 
-def valider(objet, blocs=None):
-    """Vérifie une sortie : (erreurs, avertissements). Sans erreur, elle est conforme au format 1.0."""
-    erreurs = erreurs_de_forme(objet)
-    if not erreurs:
-        erreurs = erreurs_schema(objet)
-    avert = []
-    st = statut(objet)
-    if not erreurs:
+def validate(obj, blocks=None):
+    """Checks an output: (errors, warnings). Without errors, it complies with format 1.0."""
+    errors = shape_errors(obj)
+    if not errors:
+        errors = schema_errors(obj)
+    warnings = []
+    st = status(obj)
+    if not errors:
         if st == "monte":
-            vals = sceaux_du_canon(objet.get("canon"))
-            if not passe(vals):
-                erreurs.append("règle 3.4 : présenté comme solution, le geste ne passe pas "
-                               f"le triple sceau ({ecrire_sceaux(vals)})")
-        if st == "question_plus_juste" and "?" not in objet.get("solution", ""):
-            avert.append("3.6 : la solution devrait être une question")
+            vals = canon_seals(obj.get("canon"))
+            if not passes(vals):
+                errors.append("rule 3.4: presented as a solution, the gesture does not pass "
+                              f"the triple seal ({format_seals(vals)})")
+        if st == "question_plus_juste" and "?" not in obj.get("solution", ""):
+            warnings.append("3.6: the solution should be a question")
         if st != "voie_courte":
-            n = len(objet.get("raisonnement", []))
+            n = len(obj.get("raisonnement", []))
             if not 2 <= n <= 4:
-                avert.append(f"2.3 : {n} étape(s) de raisonnement, 2 à 4 attendues")
-            p = compter_phrases(objet.get("reponse", ""))
+                warnings.append(f"2.3: {n} reasoning step(s), 2 to 4 expected")
+            p = count_sentences(obj.get("reponse", ""))
             if not 2 <= p <= 3:
-                avert.append(f"2.3 : environ {p} phrase(s) dans la réponse, 2 à 3 attendues")
-        code = objet.get("code")
+                warnings.append(f"2.3: about {p} sentence(s) in the answer, 2 to 3 expected")
+        code = obj.get("code")
         if isinstance(code, str) and len(code) > 90:
-            avert.append(f"4 : code de {len(code)} caractères, 90 au plus")
-    if blocs and blocs.get("json") is not None:
-        for nom, (bas, haut) in (("dissection", (4, 8)), ("generation", (4, 10))):
-            t = blocs.get(nom)
+            warnings.append(f"4: code of {len(code)} characters, 90 at most")
+    if blocks and blocks.get("json") is not None:
+        for name, (low, high) in (("dissection", (4, 8)), ("generation", (4, 10))):
+            t = blocks.get(name)
             if t is None:
                 if st != "voie_courte":
-                    erreurs.append(f"4 : bloc <{nom}> manquant")
+                    errors.append(f"4: <{name}> block missing")
                 continue
-            lignes = [l for l in t.splitlines() if l.strip()]
-            if not bas <= len(lignes) <= haut:
-                avert.append(f"4 : {len(lignes)} ligne(s) dans <{nom}>, {bas} à {haut} attendues")
+            lines = [l for l in t.splitlines() if l.strip()]
+            if not low <= len(lines) <= high:
+                warnings.append(f"4: {len(lines)} line(s) in <{name}>, {low} to {high} expected")
             if "{" in t or "}" in t:
-                avert.append(f"4 : accolade dans le bloc <{nom}>")
-    elif blocs and any(blocs.get(k) is not None for k in ("dissection", "generation")):
-        erreurs.append("4 : bloc <json> manquant")
-    return erreurs, avert
+                warnings.append(f"4: brace in the <{name}> block")
+    elif blocks and any(blocks.get(k) is not None for k in ("dissection", "generation")):
+        errors.append("4: <json> block missing")
+    return errors, warnings
 
 
-def rendre_pour_juge(texte: str, bras: str) -> str:
-    """Ce qu'une personne lit. Pour la tour : réponse, raisonnement et solution ; sinon le texte tel quel."""
-    if bras != "tour":
-        return texte.strip()
-    _, objet = lire_sortie(texte)
-    if isinstance(objet, dict) and _texte(objet.get("reponse")):
-        morceaux = [objet["reponse"].strip()]
-        r = objet.get("raisonnement")
+# A model's own seal line ("Seals: human +1 · …", or "Sceaux : homme +1 · …" in French):
+# hidden from the judges so they score the gesture without being anchored by its self-rating.
+SELF_SEAL_LINE = re.compile(r"^\W*(seals?|sceaux)\W*\s*:.*$", re.I | re.M)
+
+
+def render_for_judge(text: str, arm: str) -> str:
+    """What a person reads. For the tower: answer, reasoning and solution; otherwise the text as is,
+    without the model's own seal line."""
+    if arm != "tower":
+        return re.sub(r"\n{3,}", "\n\n", SELF_SEAL_LINE.sub("", text)).strip()
+    _, obj = read_output(text)
+    if isinstance(obj, dict) and _text(obj.get("reponse")):
+        parts = [obj["reponse"].strip()]
+        r = obj.get("raisonnement")
         if isinstance(r, list) and r:
-            morceaux.append("Raisonnement :\n" + "\n".join(f"{i}. {x}" for i, x in enumerate(r, 1)))
-        if _texte(objet.get("solution")):
-            morceaux.append("Solution : " + objet["solution"].strip())
-        return "\n\n".join(morceaux)
-    return re.sub(r"</?(dissection|generation|json)>", "", texte).strip()
+            parts.append("Reasoning:\n" + "\n".join(f"{i}. {x}" for i, x in enumerate(r, 1)))
+        if _text(obj.get("solution")):
+            parts.append("Solution: " + obj["solution"].strip())
+        return "\n\n".join(parts)
+    return re.sub(r"</?(dissection|generation|json)>", "", text).strip()
 
 
-def extraire_constitution(markdown: str) -> str:
-    """Le premier bloc ```text d'un fichier de constitution."""
+def extract_constitution(markdown: str) -> str:
+    """The first ```text block of a constitution file."""
     m = re.search(r"```text\n(.*?)\n```", markdown, re.S)
     if not m:
-        raise ValueError("aucun bloc ```text dans ce fichier")
+        raise ValueError("no ```text block in this file")
     return m.group(1)
 
 
-# --- compteur ---------------------------------------------------------------
+# --- bandeau ------------------------------------------------------------------
 
-def jetons(texte: str, sorte: str = "fr") -> int:
-    """Estimation 5.2, quand l'API ne donne pas l'usage."""
-    return round(len(texte or "") / CARACTERES_PAR_JETON[sorte])
+def ask_data(obj, question: str = "", lang: str = "fr", read=None, written=None,
+             question_fr: str = "", translation: dict = None) -> dict:
+    """What the Antimars strip reads for one ask (French-native keys). The tower works in French:
+    question_fr is the question translated at the root's intermediate floor, translation the
+    answer and solution given back in the asker's language at the tower's intermediate floor."""
+    data = {"langue": lang, "question": question, "sortie": obj}
+    if question_fr:
+        data["question_fr"] = question_fr
+    if translation:
+        data["traduction"] = translation
+    if read is not None and written is not None:
+        data["compteur"] = {"lus": read, "ecrits": written}
+    return data
 
 
-def energie_wh(lus: float, ecrits: float) -> float:
-    return lus * WH_PAR_JETON_LU + ecrits * WH_PAR_JETON_ECRIT
+def bande_html(data: dict, standalone: bool = False, template=None) -> str:
+    """assets/bande-antimars.html with one ask embedded. The fragment goes as is into an inline
+    widget; standalone=True wraps it in a page that opens in any browser."""
+    template = template or BANDE
+    page = template.read_text(encoding="utf-8")
+    if page.count(BANDE_MARK) != 1:
+        raise ValueError(f"{BANDE_MARK} missing or repeated in {template.name}")
+    page = page.replace(BANDE_MARK, json.dumps(data, ensure_ascii=False).replace("<", "\\u003c"))
+    return _page(page, "Antimars · bandeau", "fr") if standalone else page
 
 
-def secondes_de_tour(wh: float) -> float:
-    return wh / WH_PAR_SECONDE_DE_TOUR
+def picto_html(latin: str, seals, standalone: bool = False) -> str:
+    """assets/picto-antimars.html, deliberately restrained: the tower on the left, one line of
+    Latin on the right (the solution in synthesis, no English or French), the right tip gold
+    when the triple seal passes."""
+    page = PICTO.read_text(encoding="utf-8")
+    for mark in (PICTO_LATIN, PICTO_GOLD):
+        if page.count(mark) != 1:
+            raise ValueError(f"{mark} missing or repeated in {PICTO.name}")
+    page = page.replace(PICTO_LATIN, _html.escape(" ".join(latin.split()), quote=False))
+    page = page.replace(PICTO_GOLD, GOLD if passes(seals) else "currentColor")
+    return _page(page, "Antimars · pax", "la") if standalone else page
 
 
-def approx(x: float, chiffres: int = 2) -> str:
-    """« ≈ » et au plus deux chiffres significatifs, à la française (5.3)."""
+def _page(fragment: str, title: str, lang: str) -> str:
+    """A fragment wrapped in a page that opens in any browser."""
+    return (f'<!DOCTYPE html>\n<html lang="{lang}">\n<head>\n<meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            f'<title>{title}</title>\n</head>\n<body style="max-width:1000px;margin:24px auto;padding:0 16px">\n'
+            + fragment + '</body>\n</html>\n')
+
+
+# --- counter ----------------------------------------------------------------
+
+def tokens(text: str, kind: str = "en") -> int:
+    """Estimate 5.2, when the API does not report usage."""
+    return round(len(text or "") / CHARS_PER_TOKEN[kind])
+
+
+def energy_wh(read: float, written: float) -> float:
+    return read * WH_PER_READ_TOKEN + written * WH_PER_WRITTEN_TOKEN
+
+
+def tower_seconds(wh: float) -> float:
+    return wh / WH_PER_TOWER_SECOND
+
+
+def approx(x: float, digits: int = 2) -> str:
+    """"≈" and at most two significant figures (5.3)."""
     if x == 0:
         return "≈ 0"
-    decimales = chiffres - 1 - math.floor(math.log10(abs(x)))
-    v = round(x, decimales)
-    if decimales > 0:
-        return "≈ " + f"{v:.{decimales}f}".replace(".", ",")
-    return "≈ " + f"{int(v):,}".replace(",", " ")
+    decimals = digits - 1 - math.floor(math.log10(abs(x)))
+    v = round(x, decimals)
+    if v != 0:  # rounding can carry to the next power of ten (0.0996 → 0.10): count again
+        decimals = digits - 1 - math.floor(math.log10(abs(v)))
+        v = round(x, decimals)
+    if decimals > 0:
+        return "≈ " + f"{v:.{decimals}f}"
+    return "≈ " + f"{int(v):,}"
 
 
-def compteur(lus: float, ecrits: float) -> str:
-    wh = energie_wh(lus, ecrits)
-    return f"{approx(lus + ecrits)} jetons · {approx(wh)} Wh · {approx(secondes_de_tour(wh))} s de tour"
+def counter(read: float, written: float) -> str:
+    wh = energy_wh(read, written)
+    return f"{approx(read + written)} tokens · {approx(wh)} Wh · {approx(tower_seconds(wh))} s of tower"
 
 
-# --- accord entre évaluateurs -------------------------------------------------
+# --- agreement between raters -------------------------------------------------
 
-def accord(paires):
-    """Part des paires identiques, ou None."""
-    paires = [(a, b) for a, b in paires if a is not None and b is not None]
-    return sum(a == b for a, b in paires) / len(paires) if paires else None
+def agreement(pairs):
+    """Share of identical pairs, or None."""
+    pairs = [(a, b) for a, b in pairs if a is not None and b is not None]
+    return sum(a == b for a, b in pairs) / len(pairs) if pairs else None
 
 
-def kappa_pondere(paires):
-    """Kappa de Cohen à poids linéaires sur l'échelle −1, 0, +1 ; None s'il n'est pas défini."""
-    echelle = (-1, 0, 1)
-    paires = [(a, b) for a, b in paires if a in echelle and b in echelle]
-    n = len(paires)
+def weighted_kappa(pairs):
+    """Cohen's kappa with linear weights on the −1, 0, +1 scale; None when undefined."""
+    scale = (-1, 0, 1)
+    pairs = [(a, b) for a, b in pairs if a in scale and b in scale]
+    n = len(pairs)
     if not n:
         return None
-    o = [[0] * 3 for _ in echelle]
-    for a, b in paires:
-        o[echelle.index(a)][echelle.index(b)] += 1
-    lignes = [sum(r) for r in o]
-    colonnes = [sum(o[i][j] for i in range(3)) for j in range(3)]
-    observe = attendu = 0.0
+    o = [[0] * 3 for _ in scale]
+    for a, b in pairs:
+        o[scale.index(a)][scale.index(b)] += 1
+    rows = [sum(r) for r in o]
+    cols = [sum(o[i][j] for i in range(3)) for j in range(3)]
+    observed = expected = 0.0
     for i in range(3):
         for j in range(3):
-            poids = abs(i - j) / 2
-            observe += poids * o[i][j]
-            attendu += poids * lignes[i] * colonnes[j] / n
-    return None if attendu == 0 else 1 - observe / attendu
+            w = abs(i - j) / 2
+            observed += w * o[i][j]
+            expected += w * rows[i] * cols[j] / n
+    return None if expected == 0 else 1 - observed / expected
 
 
-# --- exemples ---------------------------------------------------------------
+# --- examples ---------------------------------------------------------------
 
-def verifier_exemples(chemin=EXEMPLES):
-    """Valide chaque exemple et la cohérence de son annotation : (lignes, nombre de problèmes)."""
-    exemples = json.loads(pathlib.Path(chemin).read_text(encoding="utf-8"))
-    lignes, problemes = [], 0
-    for ex in exemples:
-        rep, ann = ex["reponse"], ex["annotation"]
-        erreurs, avert = valider(rep)
+def check_examples(path=EXAMPLES):
+    """Validates each example and the consistency of its annotation: (rows, number of problems)."""
+    examples = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
+    rows, problems = [], 0
+    for ex in examples:
+        resp, ann = ex["response"], ex["annotation"]
+        errors, warnings = validate(resp)
         gold = None
-        if ann.get("sceaux"):
-            gold = tuple(valeur(ann["sceaux"][s]["valeur"]) for s in SCEAUX)
-        st, verdict = statut(rep), ann["verdict"]
-        coherent = {
-            "voie_courte": st == "voie_courte" and gold is None,
-            "monte": st == "monte" and passe(gold),
-            "ne_monte_pas": gold is not None and not passe(gold),
-            "question_plus_juste": st == "question_plus_juste" and gold is not None,
+        if ann.get("seals"):
+            gold = tuple(seal_value(ann["seals"][s]["value"]) for s in ANNOTATION_SEALS)
+        st, verdict = status(resp), ann["verdict"]
+        consistent = {
+            "short_path": st == "voie_courte" and gold is None,
+            "rises": st == "monte" and passes(gold),
+            "does_not_rise": gold is not None and not passes(gold),
+            "fairer_question": st == "question_plus_juste" and gold is not None,
         }.get(verdict, False)
-        ok = not erreurs and coherent
-        problemes += not ok
-        etat = "ok" if ok else ("; ".join(erreurs) or "annotation incohérente")
-        lignes.append((ex["id"], ex["titre"], st, ecrire_sceaux(sceaux_du_canon(rep.get("canon"))),
-                       ecrire_sceaux(gold), verdict, etat, avert))
-    return lignes, problemes
+        ok = not errors and consistent
+        problems += not ok
+        state = "ok" if ok else ("; ".join(errors) or "inconsistent annotation")
+        rows.append((ex["id"], ex["title"], st, format_seals(canon_seals(resp.get("canon"))),
+                     format_seals(gold), verdict, state, warnings))
+    return rows, problems
 
 
-# --- ligne de commande --------------------------------------------------------
+# --- command line -------------------------------------------------------------
 
 def main(argv=None) -> int:
     import argparse
-    p = argparse.ArgumentParser(prog="antimars", description="Outils de référence du noyau Antimars 1.0.")
-    sous = p.add_subparsers(dest="commande", required=True)
-    v = sous.add_parser("valider", help="vérifie une sortie : trois blocs, ou un objet JSON")
-    v.add_argument("fichier")
-    c = sous.add_parser("compter", help="jetons, Wh et secondes de tour d'une sortie")
-    c.add_argument("fichier")
-    c.add_argument("--lus", type=int, default=0, help="jetons lus (prompt et question), s'ils sont connus")
-    c.add_argument("--sorte", choices=sorted(CARACTERES_PAR_JETON), default="fr")
-    sous.add_parser("exemples", help="vérifie les exemples annotés")
+    p = argparse.ArgumentParser(prog="antimars", description="Reference tools of the Antimars 1.0 core.")
+    sub = p.add_subparsers(dest="command", required=True)
+    v = sub.add_parser("validate", help="checks an output: three blocks, or a JSON object")
+    v.add_argument("file")
+    c = sub.add_parser("count", help="tokens, Wh and seconds of tower of an output")
+    c.add_argument("file")
+    c.add_argument("--read", type=int, default=0, help="read tokens (prompt and question), if known")
+    c.add_argument("--kind", choices=sorted(CHARS_PER_TOKEN), default="en")
+    sub.add_parser("examples", help="checks the annotated examples")
+    w = sub.add_parser("bande", help="builds the Antimars strip of one output (an HTML page or fragment)")
+    w.add_argument("file")
+    w.add_argument("--question", default="", help="the question as asked")
+    w.add_argument("--question-fr", default="", help="the question in French, when asked in another language")
+    w.add_argument("--lang", default="fr", help="language of the question (fr, en, es…)")
+    w.add_argument("--translation", help="JSON file {reponse, solution} in the language of the question")
+    w.add_argument("--read", type=int, help="read tokens, to show the counter")
+    w.add_argument("--kind", choices=sorted(CHARS_PER_TOKEN), default="fr")
+    w.add_argument("--fragment", action="store_true", help="the bare fragment, for an inline widget")
+    w.add_argument("--picto", action="store_true", help="the pictogram instead of the strip: the tower and one line of Latin")
+    w.add_argument("--latin", default="", help="with --picto: the solution in one line of Latin")
+    w.add_argument("--out")
     a = p.parse_args(argv)
 
-    if a.commande == "valider":
-        texte = pathlib.Path(a.fichier).read_text(encoding="utf-8")
-        blocs, objet = lire_sortie(texte)
-        erreurs, avert = valider(objet, blocs)
-        if erreurs:
-            print("non conforme au format 1.0")
-            for x in erreurs:
-                print("  erreur :", x)
-        else:
-            vals = sceaux_du_canon(objet.get("canon"))
-            print(f"conforme au format 1.0 · statut {statut(objet)} · sceaux {ecrire_sceaux(vals)}"
-                  + (" · passe" if passe(vals) else ""))
-        for x in avert:
-            print("  avertissement :", x)
-        return 1 if erreurs else 0
-
-    if a.commande == "compter":
-        texte = pathlib.Path(a.fichier).read_text(encoding="utf-8")
-        ecrits = jetons(texte, a.sorte)
-        print(compteur(a.lus, ecrits))
-        print(f"  jetons écrits estimés : {ecrits} ; jetons lus : {a.lus}")
+    if a.command == "bande":
+        text = pathlib.Path(a.file).read_text(encoding="utf-8")
+        blocks, obj = read_output(text)
+        errors, _ = validate(obj, blocks)
+        if errors:
+            print("does not comply with format 1.0: no strip")
+            for x in errors:
+                print("  error:", x)
+            return 1
+        if status(obj) == "voie_courte":
+            print("short path: the tower does not climb, no strip")
+            return 1
+        if a.picto:
+            if not a.latin.strip():
+                print("the pictogram needs --latin: the solution in one line of Latin")
+                return 1
+            page = picto_html(a.latin, canon_seals(obj.get("canon")), standalone=not a.fragment)
+            out = a.out or "picto-antimars.html"
+            pathlib.Path(out).write_text(page, encoding="utf-8")
+            print(f"{out} · {len(page.encode('utf-8'))} bytes")
+            return 0
+        tr = json.loads(pathlib.Path(a.translation).read_text(encoding="utf-8")) if a.translation else None
+        written = tokens(text, a.kind) if a.read is not None else None
+        data = ask_data(obj, a.question, a.lang, a.read, written, a.question_fr, tr)
+        html = bande_html(data, standalone=not a.fragment)
+        out = a.out or "bande-antimars.html"
+        pathlib.Path(out).write_text(html, encoding="utf-8")
+        print(f"{out} · {len(html.encode('utf-8')) // 1024} KB")
         return 0
 
-    lignes, problemes = verifier_exemples()
-    for id_, titre, st, sceaux, gold, verdict, etat, avert in lignes:
-        print(f"{id_}  {titre:<34} {st:<20} réponse {sceaux:<9} annotation {gold:<9} {verdict:<20} {etat}")
-        for x in avert:
-            print("      avertissement :", x)
-    print(f"{len(lignes)} exemples, {problemes} problème(s)")
-    return 1 if problemes else 0
+    if a.command == "validate":
+        text = pathlib.Path(a.file).read_text(encoding="utf-8")
+        blocks, obj = read_output(text)
+        errors, warnings = validate(obj, blocks)
+        if errors:
+            print("does not comply with format 1.0")
+            for x in errors:
+                print("  error:", x)
+        else:
+            vals = canon_seals(obj.get("canon"))
+            print(f"complies with format 1.0 · statut {status(obj)} · seals {format_seals(vals)}"
+                  + (" · passes" if passes(vals) else ""))
+        for x in warnings:
+            print("  warning:", x)
+        return 1 if errors else 0
+
+    if a.command == "count":
+        text = pathlib.Path(a.file).read_text(encoding="utf-8")
+        written = tokens(text, a.kind)
+        print(counter(a.read, written))
+        print(f"  estimated written tokens: {written}; read tokens: {a.read}")
+        return 0
+
+    rows, problems = check_examples()
+    for id_, title, st, seals, gold, verdict, state, warnings in rows:
+        print(f"{id_}  {title:<34} {st:<20} response {seals:<9} annotation {gold:<9} {verdict:<16} {state}")
+        for x in warnings:
+            print("      warning:", x)
+    print(f"{len(rows)} examples, {problems} problem(s)")
+    return 1 if problems else 0
 
 
 if __name__ == "__main__":

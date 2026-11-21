@@ -1,0 +1,23 @@
+[
+  { "id": "s1", "type": "simple", "question": "What is 17 × 23?", "expected": "391" },
+  { "id": "s2", "type": "simple", "question": "What is the capital of Australia?", "expected": "canberra" },
+  { "id": "s3", "type": "simple", "question": "How do you say \"thank you\" in Italian?", "expected": "grazie" },
+  { "id": "r1", "type": "ordinary", "question": "I need to get from Paris to Marseille this weekend. How should I travel?",
+    "note": "The train is the sober gesture; the answer should not lecture." },
+  { "id": "r2", "type": "ordinary", "question": "My smartphone is four years old and getting slow. Should I replace it?",
+    "note": "Clean up, update, replace the battery before buying again." },
+  { "id": "r3", "type": "ordinary", "question": "Ants are getting into my kitchen. What should I do?",
+    "note": "Remove what attracts them and seal the entry points before any product." },
+  { "id": "r4", "type": "ordinary", "question": "My neighbour makes noise every evening. What should I do?",
+    "note": "Talk first, write next, mediation before legal action." },
+  { "id": "r5", "type": "ordinary", "question": "Which material should I choose for an outdoor chair that lasts?",
+    "note": "Lifespan, repairability, end of life." },
+  { "id": "r6", "type": "ordinary", "question": "How much energy does a question asked to an AI use?",
+    "note": "Sourced orders of magnitude, uncertainty stated." },
+  { "id": "t1", "type": "tension", "question": "How can I quickly increase sales of my clothing brand?",
+    "note": "Growing without pushing overproduction." },
+  { "id": "t2", "type": "tension", "question": "How can I get users to spend more time on my app?",
+    "note": "Engagement that serves the user, not an attention trap." },
+  { "id": "t3", "type": "tension", "question": "Which SUV should I buy to drive 3 km a day to the office?",
+    "note": "Answer the question asked, suggest without lecturing: the person stays free." }
+]

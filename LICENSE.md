@@ -1,18 +1,18 @@
 # Licences
 
-Antimars est distribué sous deux licences, selon la nature du fichier.
+Antimars is distributed under two licences, depending on the nature of the file.
 
-## Textes : CC BY 4.0
+## Text: CC BY 4.0
 
-La spécification (`SPEC.md`), le schéma, les constitutions, les exemples annotés, le corpus, les gabarits des juges et les documents (`README.md`, `GOUVERNANCE.md`, `PILOTES.md`, `ROADMAP.md`, `banc/PROTOCOLE.md`) sont placés sous licence Creative Commons Attribution 4.0 International.
+The specification (`SPEC.md`), the schema, the constitutions, the annotated examples, the corpus, the judge templates and the documents (`README.md`, `GOVERNANCE.md`, `PILOTS.md`, `ROADMAP.md`, `bench/PROTOCOL.md`) are released under the Creative Commons Attribution 4.0 International licence.
 
-Vous pouvez les copier, les traduire, les adapter et les redistribuer, y compris à des fins commerciales, à condition de créditer l'auteur (« Antimars, Garrigue »), d'indiquer la licence et de signaler vos modifications.
+You may copy, translate, adapt and redistribute them, including for commercial purposes, provided you credit the author ("Antimars, Garrigue"), state the licence and indicate your changes.
 
-Texte complet : https://creativecommons.org/licenses/by/4.0/legalcode.fr
+Full text: https://creativecommons.org/licenses/by/4.0/legalcode
 
-## Code : MIT
+## Code: MIT
 
-Le code (`outils/`, `banc/banc.py`, `banc/page/`) est placé sous licence MIT.
+The code (`tools/`, `assets/`, `bench/bench.py`, `bench/page/`) is released under the MIT licence.
 
 ```
 Copyright (c) 2026 Garrigue
@@ -36,6 +36,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## Le nom
+## The name
 
-Le nom « Antimars » et la mention « conforme Antimars N1, N2 ou N3 » suivent la convention décrite dans [GOUVERNANCE.md](GOUVERNANCE.md). Une variante est la bienvenue sous un autre nom.
+The name "Antimars" and the mention "Antimars N1, N2 or N3 compliant" follow the convention described in [GOVERNANCE.md](GOVERNANCE.md). A variant is welcome under another name.

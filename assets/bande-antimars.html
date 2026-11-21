@@ -1,0 +1,268 @@
+<style>
+#am{--ink:var(--text-primary,#1d2126);--mute:var(--text-secondary,#6b6a64);--line:var(--border,rgba(0,0,0,.15));--paper:var(--surface-1,#ffffff);font-family:var(--font-sans,system-ui,sans-serif);color:var(--ink)}
+#am .bar{height:58px;display:flex;flex-direction:column;border-bottom:0.5px solid var(--line)}
+#am .row{display:flex;justify-content:space-between;gap:12px;font:500 11px/16px var(--font-mono,ui-monospace,monospace);letter-spacing:.06em;color:var(--mute)}
+#am .row span:last-child{font-weight:400;letter-spacing:0;white-space:nowrap}
+#am .tx{flex:1;min-height:0;overflow-y:auto;font:14.5px/1.4 var(--font-voice,Georgia,serif);white-space:pre-line;margin:2px 0 4px;padding-right:6px}
+#am svg{display:block;width:100%;height:auto;touch-action:none;cursor:ns-resize}
+#am path{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round}
+#am .socle{vector-effect:non-scaling-stroke}
+#am text.lt{font:500 18px var(--font-mono,ui-monospace,monospace);fill:var(--mute);cursor:pointer;transition:fill .3s}
+#am text.lt.sm{font-size:13px;font-style:italic}
+#am text.lt.lit{fill:var(--ink)} #am text.lt.on{fill:#D4A72C}
+#am text.dr{font:500 17px var(--font-mono,ui-monospace,monospace);cursor:pointer}
+#am .k:focus{outline:none} #am .k:focus-visible text{text-decoration:underline}
+#am .lead{stroke:#D4A72C;stroke-dasharray:1 3;vector-effect:non-scaling-stroke}
+</style>
+<div id="am">
+<div class="bar" aria-live="polite"><div class="row"><span id="am-l">antimars</span><span id="am-c"></span></div><div class="tx" id="am-t"></div></div>
+<svg id="am-s" viewBox="0 0 1000 216" role="group" aria-label="Tour Antimars : la racine à gauche, la tour à droite ; les lettres choisissent un étage, la molette tourne la tour et élit un pilier">
+<line x1="500" y1="2" x2="500" y2="194" stroke="#888780" stroke-width=".5" stroke-dasharray="2 5" vector-effect="non-scaling-stroke"></line>
+<g id="am-b0"></g><g id="am-b1"></g><g id="am-b2"></g><g id="am-so"></g><g id="am-mk"></g><g id="am-k"></g>
+</svg>
+</div>
+<script type="application/json" id="am-d">__ANTIMARS_WINDOW_DATA__</script>
+<script>
+(function () {
+var D = {};
+try { D = JSON.parse(document.getElementById('am-d').textContent); } catch (e) { D = {}; }
+var O = D.sortie || D.output || {}, I = O.interpretation || {}, C = O.canon || {}, TR = D.traduction || {};
+var LANG = (D.langue || D.lang || 'fr').toLowerCase(), CTR = D.compteur || D.counter || null;
+var PROFILE = [[0, 62.45], [57.63, 33.5], [115.73, 18.0], [195.93, 11.0], [276.13, 6.2]], LEGW = [[0, 25.33], [57.63, 15.0], [115.73, 12.0]];
+var F1 = 57.63, F2 = 115.73, FI = 195.93, F3 = 276.13, TIP = 324;
+var LEGS = [[1, 1], [1, -1], [-1, -1], [-1, 1]], SQ = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+var G = 24, S = 1.374, CX = 500, CY = 100, KD = 0.1, Q = 0.8, R = 88, SG = 1, NS = 'http://www.w3.org/2000/svg';
+function W(h) { if (h <= 0) return 62.45; for (var i = 0; i + 1 < PROFILE.length; i++) { var p = PROFILE[i], q = PROFILE[i + 1]; if (h <= q[0]) return p[1] * Math.pow(q[1] / p[1], (h - p[0]) / (q[0] - p[0])); } return 6.2; }
+function L(h) { for (var i = 0; i + 1 < LEGW.length; i++) { var p = LEGW[i], q = LEGW[i + 1]; if (h <= q[0]) return p[1] + (q[1] - p[1]) * (h - p[0]) / (q[0] - p[0]); } return 12; }
+var SEG = [];
+function seg(a, b, g, w) { var o = SG * G / 2, ah = a[1] + o, bh = b[1] + o; SEG.push([a[0], ah, a[2], b[0], bh, b[2], g, w, (ah + bh) / 2]); }
+function poly(p, g, w) { for (var i = 0; i + 1 < p.length; i++) seg(p[i], p[i + 1], g, w); }
+function square(h, a, g, w) { var c = SQ.map(function (k) { return [k[0] * a, h, k[1] * a]; }); poly([c[0], c[1], c[2], c[3], c[0]], g, w); return c; }
+function build(sg) {
+  SG = sg;
+  var legH = [0, 9.6, 19.2, 28.8, 38.4, 48, F1, 67.3, 77, 86.7, 96.3, 106, F2];
+  LEGS.forEach(function (lg, g) {
+    var corner = function (c, h) { var w = W(h), o = [w, w - L(h)], k = [[0, 0], [1, 0], [1, 1], [0, 1]][c]; return [lg[0] * o[k[0]], sg * h, lg[1] * o[k[1]]]; };
+    for (var j = 0; j + 1 < legH.length; j++) for (var c = 0; c < 4; c++) {
+      var a = legH[j], b = legH[j + 1], d = (c + 1) % 4;
+      seg(corner(c, a), corner(c, b), g, 1); seg(corner(c, a), corner(d, b), g, 0); seg(corner(d, a), corner(c, b), g, 0); seg(corner(c, a), corner(d, a), g, 0);
+    }
+  });
+  var shH = [F2, 125.2, 134.8, 144.6, 154.6, 164.8, 175.2, 185.5, FI, 205.9, 216, 226.1, 236.2, 246.3, 256.3, 266.2, F3];
+  var sc = function (c, h) { var w = W(h); return [SQ[c][0] * w, sg * h, SQ[c][1] * w]; };
+  for (var j = 0; j + 1 < shH.length; j++) for (var c = 0; c < 4; c++) {
+    var a = shH[j], b = shH[j + 1], d = (c + 1) % 4;
+    seg(sc(c, a), sc(c, b), 4, 1); seg(sc(c, a), sc(d, b), 4, 0); seg(sc(d, a), sc(c, b), 4, 0); seg(sc(c, b), sc(d, b), 4, 0);
+  }
+  for (var f = 0; f < 4; f++) {
+    var A = LEGS[f], B = LEGS[(f + 1) % 4], vary = A[0] === B[0] ? 1 : 0, fix = A[1 - vary], span = W(0) - L(0), arc = [], ext = [];
+    for (var t = 0; t <= 20; t++) {
+      var u = Math.PI * t / 20, v = A[vary] * span * Math.cos(u);
+      [[arc, 39.4, 1], [ext, 42.8, 1.04]].forEach(function (pair) {
+        var h = pair[1] * Math.sin(u), p = [0, sg * h, 0]; v = A[vary] * span * pair[2] * Math.cos(u);
+        p[vary ? 2 : 0] = v; p[vary ? 0 : 2] = fix * W(h); pair[0].push(p);
+      });
+    }
+    poly(arc, 4, 1); poly(ext, 4, 0);
+    for (var t = 1; t < 20; t += 2) seg(arc[t], ext[t], 4, 0);
+  }
+  function ring(h, a, lo, hi, posts) {
+    square(sg * h, a, 4, 1); square(sg * lo, a - 0.8, 4, 0); var top = square(sg * hi, a, 4, 0);
+    for (var c = 0; c < 4; c++) for (var i = 0; i <= posts; i++) {
+      var t = i / posts, p = top[c], q = top[(c + 1) % 4], x = p[0] + (q[0] - p[0]) * t, z = p[2] + (q[2] - p[2]) * t;
+      seg([x, sg * lo, z], [x, sg * hi, z], 4, 0);
+    }
+  }
+  ring(F1, 35.35, 53, 62, 10); ring(F2, 18.8, 113.2, 118, 6); ring(F3, 9.33, 274.6, 279.5, 3);
+  var mid = W(FI) + 0.8, cI = square(sg * FI, mid, 6, 1);
+  square(sg * (FI + 2.4), mid - 0.3, 6, 0); square(sg * FI, mid * 0.55, 6, 0);
+  seg(cI[0], cI[2], 6, 0); seg(cI[1], cI[3], 6, 0);
+  for (var c = 0; c < 4; c++) { var e = cI[c]; seg(e, [e[0], sg * (FI + 2.4), e[2]], 6, 0); }
+  SQ.forEach(function (k) {
+    seg([k[0] * W(268), sg * 268, k[1] * W(268)], [k[0] * 9.33, sg * F3, k[1] * 9.33], 4, 0);
+    var rib = [];
+    for (var t = 0; t <= 6; t++) { var u = t / 6, r = 6.2 - 3.6 * u + 1.4 * Math.sin(Math.PI * u); rib.push([k[0] * r, sg * (279.5 + 13.7 * u), k[1] * r]); }
+    poly(rib, 4, 1);
+  });
+  square(sg * 293.2, 3, 4, 0); square(sg * 300.5, 2.2, 4, 0);
+  seg([0, sg * 300.5, 0], [0, sg * TIP, 0], 5, 1);
+  [306, 312, 318].forEach(function (h) { seg([-2.2, sg * h, 0], [2.2, sg * h, 0], 5, 0); });
+}
+build(1); build(-1);
+
+var COL = ['#C9A227', '#7F86C9', '#C8763F', '#5F9E70', '#A89A6A', '#D4A72C', '#4F8FB8'], DIM = '#888780';
+var ST = [-TIP, -F3, -FI, -F2, -F1, F1, F2, FI, F3, TIP].map(function (h) { return h + (h < 0 ? -G / 2 : G / 2); });
+var KEYS = ['A', 'N', 'fr', 'T', 'I', 'M', 'A', LANG, 'R', 'S'];
+var NAMES = ['question', 'entendue', 'traduction · fr', 'dissection', 'enjeu', 'proto-réponse', 'raisonnement', 'traduction · ' + LANG, 'réponse', 'solution'];
+var PIL = ['géométrie', 'rationalité', 'créativité', 'paix'], FRAG = ['énergie', 'pensée', 'abstraction', 'vivant'], FK = ['energie', 'pensee', 'abstraction', 'vivant'];
+var TOP = LEGS.map(function (l) { return Math.atan2((l[1] - l[0]) / 2, (-l[0] - l[1]) / 2); });
+var seals = ['homme', 'planete', 'vivant'].map(function (k) { var v = (C[k] || {}).sceau; return v === 1 || v === 0 || v === -1 ? v : null; });
+var passes = seals.indexOf(null) < 0 && Math.min.apply(null, seals) >= 0 && Math.max.apply(null, seals) === 1;
+var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+var th = TOP[2], prog = -400, elected = -1, sel = -1;
+var $ = function (id) { return document.getElementById(id); };
+function mk(tag, at, parent) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); parent.appendChild(e); return e; }
+function txt(x) { return typeof x === 'string' && x.trim() ? x.trim() : '—'; }
+function P(x, h, z, ct, st) { return [CX + h * S + (x * st + z * ct) * S * KD * Q, CY + (x * ct - z * st) * S * Q]; }
+var bins = [$('am-b0'), $('am-b1'), $('am-b2')], pool = {};
+function render() {
+  var ct = Math.cos(th), st = Math.sin(th), buf = {}, key, s, a, b;
+  for (var i = 0; i < SEG.length; i++) {
+    s = SEG[i]; a = P(s[0], s[1], s[2], ct, st); b = P(s[3], s[4], s[5], ct, st);
+    var dn = ((s[0] + s[3]) * st + (s[2] + s[5]) * ct) / 2 / R, bin = dn < -0.25 ? 2 : dn > 0.25 ? 0 : 1, g = s[6];
+    var leg = g < 4, lit = s[8] <= prog || (leg && g === elected) || (g === 6 && (sel === 2 || sel === 7) && Math.sign(s[8]) === Math.sign(ST[sel]));
+    var state = !lit ? 'u' : leg && elected >= 0 ? (g === elected ? 'e' : 'd') : (g === 6 && (sel === 2 || sel === 7) ? 'e' : 'l');
+    key = bin + '|' + (lit ? g : 9) + '|' + s[7] + '|' + state;
+    (buf[key] = buf[key] || []).push('M' + a[0].toFixed(1) + ' ' + a[1].toFixed(1) + 'L' + b[0].toFixed(1) + ' ' + b[1].toFixed(1));
+  }
+  for (key in pool) if (!buf[key]) pool[key].setAttribute('d', '');
+  for (key in buf) {
+    var el = pool[key];
+    if (!el) {
+      var p = key.split('|'), on = p[3] !== 'u';
+      var op = p[3] === 'e' ? 1 : on ? [0.34, 0.62, 1][p[0]] * (p[3] === 'd' ? 0.45 : 1) : [0.12, 0.2, 0.32][p[0]];
+      var wd = (p[2] === '1' ? (on ? 0.9 : 0.7) : (on ? 0.45 : 0.4)) * (p[3] === 'e' ? 1.5 : 1);
+      el = pool[key] = mk('path', {stroke: on ? COL[+p[1]] : DIM, 'stroke-opacity': op.toFixed(2), 'stroke-width': wd.toFixed(2)}, bins[p[0]]);
+    }
+    el.setAttribute('d', buf[key].join(''));
+  }
+  socle(ct, st); marks(ct, st);
+}
+var so = $('am-so'), plinths = LEGS.map(function (l, k) {
+  var g = mk('g', {}, so);
+  var paper = mk('polygon', {fill: 'var(--paper)', stroke: 'none'}, g);
+  var con = mk('polygon', {fill: '#888780', 'fill-opacity': '0.2', stroke: '#888780', 'stroke-opacity': '0.6', 'stroke-width': '0.8', 'class': 'socle'}, g);
+  var t = mk('text', {'class': 'dr', 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: COL[k]}, g);
+  t.textContent = 'GRCP'.charAt(k);
+  t.addEventListener('click', function (e) { e.stopPropagation(); stopClimb(); turnTo(k, true); });
+  t.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+  return {g: g, paper: paper, con: con, t: t, l: l};
+});
+function hull(pts) {
+  pts = pts.slice().sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+  var cr = function (o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); }, lo = [], up = [];
+  pts.forEach(function (p) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); });
+  pts.slice().reverse().forEach(function (p) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); });
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+function socle(ct, st) {
+  var w0 = W(0) + 1.5, i0 = W(0) - L(0) - 1.5, H = G / 2, order = [];
+  plinths.forEach(function (pl) {
+    var xs = [pl.l[0] * i0, pl.l[0] * w0], zs = [pl.l[1] * i0, pl.l[1] * w0], pts = [];
+    [-H, H].forEach(function (h) { xs.forEach(function (x) { zs.forEach(function (z) { pts.push(P(x, h, z, ct, st)); }); }); });
+    var hp = hull(pts).map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+    pl.paper.setAttribute('points', hp); pl.con.setAttribute('points', hp);
+    var cxm = pl.l[0] * (w0 + i0) / 2, czm = pl.l[1] * (w0 + i0) / 2, c = P(cxm, 0, czm, ct, st), d = (cxm * st + czm * ct) / R;
+    pl.t.setAttribute('x', c[0].toFixed(1)); pl.t.setAttribute('y', c[1].toFixed(1));
+    pl.t.setAttribute('fill-opacity', (d < 0.15 ? (pl === plinths[elected] ? 1 : 0.65) * Math.min(1, (0.15 - d) * 2.5) : 0).toFixed(2));
+    order.push([d, pl.g]);
+  });
+  order.sort(function (a, b) { return b[0] - a[0]; }).forEach(function (o) { so.appendChild(o[1]); });
+}
+var mkG = $('am-mk');
+function star(x, r) { var d = ''; for (var i = 0; i < 8; i++) { var a = Math.PI * i / 4; d += 'M' + x.toFixed(1) + ' ' + CY + 'L' + (x + r * Math.cos(a)).toFixed(1) + ' ' + (CY + r * Q * Math.sin(a) * 1.6).toFixed(1); } return d; }
+var qStar = mk('path', {d: star(CX - (TIP + G / 2 + 5) * S, 5), 'stroke-width': 0.9}, mkG);
+var sStar = mk('path', {d: star(CX + (TIP + G / 2 + 5) * S, 6), 'stroke-width': 1}, mkG);
+var lead = mk('line', {'class': 'lead', x1: 0, y1: 0, x2: 0, y2: 0, visibility: 'hidden'}, mkG);
+var letters = KEYS.map(function (ch, i) {
+  var g = mk('g', {'class': 'k', tabindex: 0, role: 'button', 'aria-label': NAMES[i]}, $('am-k'));
+  var t = mk('text', {'class': 'lt ts' + (ch.length > 1 ? ' sm' : ''), x: (CX + ST[i] * S).toFixed(1), y: 210, 'text-anchor': 'middle'}, g);
+  t.textContent = ch;
+  var go = function (e) { e.stopPropagation(); if (e.preventDefault && e.type === 'keydown') e.preventDefault(); stopClimb(); choose(i); };
+  g.addEventListener('click', go);
+  g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') go(e); });
+  g.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+  return t;
+});
+var PLATE = [0, 9.33, 0, 18.8, 35.35, 35.35, 18.8, 0, 9.33, 0];
+function marks(ct, st) {
+  qStar.setAttribute('stroke', prog >= ST[0] ? COL[4] : DIM);
+  sStar.setAttribute('stroke', prog >= ST[9] && passes ? COL[5] : DIM);
+  letters.forEach(function (t, i) { t.classList.toggle('lit', prog >= ST[i] - 0.5); t.classList.toggle('on', i === sel); });
+  if (sel >= 0) {
+    var h = ST[sel], a = PLATE[sel] || (sel === 2 || sel === 7 ? W(FI) + 0.8 : 0), y = CY;
+    SQ.forEach(function (k) { y = Math.max(y, P(k[0] * a, h, k[1] * a, ct, st)[1]); });
+    var x = (CX + h * S).toFixed(1);
+    lead.setAttribute('x1', x); lead.setAttribute('x2', x); lead.setAttribute('y1', (y + 4).toFixed(1)); lead.setAttribute('y2', 196);
+    lead.setAttribute('visibility', 'visible');
+  } else lead.setAttribute('visibility', 'hidden');
+}
+var did = 0;
+function banner(label, text, color) {
+  var id = ++did, el = $('am-t'), l = $('am-l');
+  l.textContent = label; l.style.color = color || '';
+  el.scrollTop = 0;
+  if (reduced) { el.textContent = text; return; }
+  var n = 0, step = Math.max(3, Math.ceil(text.length / 24));
+  (function tick() { if (id !== did) return; n += step; el.textContent = text.slice(0, n); if (n < text.length) requestAnimationFrame(tick); })();
+}
+function body(i) {
+  var tr = LANG === 'fr';
+  switch (i) {
+    case 0: return txt(D.question);
+    case 1: return txt(I.entendue);
+    case 2: return tr ? 'Question déjà en français : rien à traduire.' : txt(D.question_fr);
+    case 3: return FK.map(function (k, j) { return FRAG[j] + ' — ' + txt(I[k]); }).join('\n');
+    case 4: return txt(I.enjeu);
+    case 5: return txt(O.proto);
+    case 6: return (O.raisonnement && O.raisonnement.length ? O.raisonnement : ['—']).map(function (r, j) { return (j + 1) + ' — ' + txt(r); }).join('\n');
+    case 7: return tr ? 'Réponse native : la tour répond en français.' : txt(TR.reponse) + '\n' + txt(TR.solution);
+    case 8: return txt(O.reponse);
+    default: return txt(O.solution) + '\n' + ['homme', 'planète', 'vivant'].map(function (n, j) { var v = seals[j]; return n + ' ' + (v === 1 ? '+1' : v === -1 ? '−1' : v === 0 ? '0' : '?'); }).join(' · ');
+  }
+}
+var tw = null;
+function animate(from, to, ms, set) {
+  if (tw) cancelAnimationFrame(tw);
+  if (reduced) { set(to); render(); return; }
+  var t0 = performance.now();
+  (function run(now) {
+    var u = Math.min(1, ((now || t0) - t0) / ms), e = 1 - Math.pow(1 - u, 3);
+    set(from + (to - from) * e); render();
+    if (u < 1) tw = requestAnimationFrame(run); else tw = null;
+  })(t0);
+}
+function choose(i) {
+  sel = Math.max(0, Math.min(9, i)); elected = -1;
+  var label = sel === 9 && O.statut === 'question_plus_juste' ? 'question plus juste' : NAMES[sel];
+  banner(label, body(sel), sel === 9 && passes ? COL[5] : (sel === 2 || sel === 7) ? COL[6] : '');
+  animate(prog, ST[sel] + 0.5, 480, function (v) { prog = v; });
+}
+function showPillar(k) { elected = k; sel = -1; banner(PIL[k] + ' · ' + FRAG[k], txt(I[FK[k]]), COL[k]); }
+function topLeg() { var best = 0, m = Infinity, c = Math.cos(th), s2 = Math.sin(th); LEGS.forEach(function (l, k) { var y = l[0] * c - l[1] * s2 + l[0] * s2 + l[1] * c; if (y < m) { m = y; best = k; } }); return best; }
+function turnTo(k, say) { var d = TOP[k] - th; d = Math.atan2(Math.sin(d), Math.cos(d)); if (say) showPillar(k); animate(th, th + d, 400, function (v) { th = v; }); }
+var snap = null;
+function spin(dl) { stopClimb(); th += dl; var k = topLeg(); if (k !== elected) showPillar(k); render(); clearTimeout(snap); snap = setTimeout(function () { turnTo(topLeg(), false); }, 180); }
+var svg = $('am-s'), drag = null;
+svg.addEventListener('wheel', function (e) { e.preventDefault(); spin((e.deltaY + e.deltaX) * (e.deltaMode === 1 ? 16 : 1) * 0.0045); }, {passive: false});
+svg.addEventListener('pointerdown', function (e) { drag = e.clientY; });
+svg.addEventListener('pointermove', function (e) { if (drag === null) return; var dy = e.clientY - drag; drag = e.clientY; if (dy) spin(dy * 0.012); });
+svg.addEventListener('pointerup', function () { drag = null; }); svg.addEventListener('pointerleave', function () { drag = null; });
+$('am').addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); stopClimb(); choose((sel < 0 ? 9 : sel) + (e.key === 'ArrowRight' ? 1 : -1)); }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); stopClimb(); turnTo((topLeg() + (e.key === 'ArrowDown' ? 1 : 3)) % 4, true); }
+});
+if (CTR) {
+  var rd = CTR.lus != null ? CTR.lus : CTR.read, wr = CTR.ecrits != null ? CTR.ecrits : CTR.written;
+  if (typeof rd === 'number' && typeof wr === 'number') {
+    var wh = rd * 0.00003 + wr * 0.0006, f = new Intl.NumberFormat('fr-FR', {maximumSignificantDigits: 2});
+    $('am-c').textContent = '≈ ' + f.format(wh) + ' Wh · ≈ ' + f.format(wh / 56) + ' s de tour';
+  }
+}
+var climbing = false;
+function stopClimb() { climbing = false; }
+render();
+if (!O.reponse) { banner('antimars', 'Pose une question à la tour.'); }
+else if (reduced) { th = TOP[3]; prog = ST[9] + 1; choose(9); }
+else {
+  climbing = true; banner(NAMES[0], body(0));
+  var t0 = performance.now(), th0 = TOP[3] - Math.PI / 2;
+  (function run(now) {
+    if (!climbing) return;
+    var u = Math.min(1, ((now || t0) - t0) / 2800), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+    prog = -360 + 710 * e; th = th0 + Math.PI / 2 * e; render();
+    if (u < 1) requestAnimationFrame(run); else { climbing = false; choose(9); }
+  })(t0);
+}
+})();
+</script>

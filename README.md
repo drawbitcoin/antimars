@@ -2,46 +2,54 @@
 
 *Pax in Terra Nostra*
 
-Antimars est une couche ouverte qu'une IA adopte pour répondre en paix. Elle dissèque la question avant d'y répondre, ne livre qu'un geste qui passe le triple sceau (homme, planète, vivant) et dit ce que la réponse a coûté, en secondes de tour Eiffel illuminée.
+Antimars is an open layer an AI adopts to answer in peace. It dissects the question before answering, delivers only a gesture that passes the triple seal (human, planet, living) and states what the answer cost, in seconds of the lit Eiffel Tower.
 
-> On ne décrète pas un standard : on le mérite.
+> You don't decree a standard: you earn it.
 
-**Statut : proposition 1.0.** Aucune mesure ne montre encore que le noyau améliore les réponses. Le banc d'essai est là pour le savoir.
+**Status: proposal 1.0.** No measurement shows yet that the core improves answers. The test bench is there to find out.
 
-## En trois gestes
+## In three gestures
 
-1. **Adopter (N1).** Collez [la constitution portable](constitution/portable.fr.md) (≈ 300 jetons, [version anglaise](constitution/portable.en.md)) en tête d'une conversation, d'un prompt système ou d'un agent.
-2. **Vérifier (N2).** `python outils/antimars.py valider sortie.txt` contrôle le format 1.0 et la règle des sceaux.
-3. **Mesurer.** `python banc/banc.py --fournisseur anthropic --modele <modèle>` compare le même modèle avec et sans le noyau. Dans Claude, la page du banc fait la même chose en un clic.
+1. **Adopt (N1).** Paste [the portable constitution](constitution/portable.en.md) (≈ 300 tokens, [French version](constitution/portable.fr.md)) at the start of a conversation, a system prompt or an agent.
+2. **Check (N2).** `python tools/antimars.py validate output.txt` checks format 1.0 and the seal rule.
+3. **Measure.** `python bench/bench.py --provider anthropic --model <model>` compares the same model with and without the core. In Claude, the bench page does the same in one click.
 
-## Le dépôt
+## The repository
 
-| Chemin | Contenu |
+| Path | Content |
 |---|---|
-| [SPEC.md](SPEC.md) | la spécification du noyau 1.0 |
-| [schema/](schema/antimars-1.0.schema.json) | le schéma JSON versionné |
-| [exemples/](exemples/exemples-1.0.json) | dix cas annotés, qui servent aussi à étalonner les juges |
-| [constitution/](constitution/) | la constitution portable (fr, en) et le prompt fondateur de la tour |
-| [outils/](outils/antimars.py) | validation, compteur, accord entre évaluateurs ; tests : `python -m unittest discover -s outils` |
-| [banc/](banc/PROTOCOLE.md) | corpus, juges, banc en ligne de commande, page du banc pour Claude |
-| [PILOTES.md](PILOTES.md), [GOUVERNANCE.md](GOUVERNANCE.md), [ROADMAP.md](ROADMAP.md) | la suite : pilotes volontaires, décisions ouvertes, v2 |
+| [SPEC.md](SPEC.md) | the core 1.0 specification, with the glossary of the wire format |
+| [schema/](schema/antimars-1.0.schema.json) | the versioned JSON schema |
+| [examples/](examples/examples-1.0.json) | ten annotated cases, which also calibrate the judges |
+| [constitution/](constitution/) | the portable constitution (en, fr) and the founding prompt of the tower (en, and the French original) |
+| [tools/](tools/antimars.py) | validation, counter, agreement between raters, strip; tests: `python -m unittest discover -s tools` |
+| [assets/](assets/bande-antimars.html) | the Antimars strip, drawn above every answer where the tower climbs |
+| [bench/](bench/PROTOCOL.md) | corpus, judges, command-line bench, bench page for Claude |
+| [PILOTS.md](PILOTS.md), [GOVERNANCE.md](GOVERNANCE.md), [ROADMAP.md](ROADMAP.md) | what comes next: volunteer pilots, open decisions, v2 |
 
-Python 3.9 et sa bibliothèque standard suffisent. Avec le paquet `jsonschema`, le schéma officiel est vérifié en plus.
+Python 3.9 and its standard library are enough. With the `jsonschema` package, the official schema is checked as well.
 
-## Habillage
+## The Antimars strip
 
-La tour (deux tours d'une même verticale, la racine qui dissèque et la tour qui répond, des antennes à paliers, une clochette quand le triple sceau passe) est l'habillage de Mars Field Intelligence, une application qui montre le noyau. L'habillage n'est pas normé : chacun peut en dessiner un autre.
+The plugin is French-native: the tower thinks in French. Above every answer where the tower climbs, it draws a thin strip of fixed height: a scrolling text banner on top, and under it the tower lying on the Earth line, drawn in face elevation after the 1889 plates (base 124.90 m, floors at 57.63, 115.73 and 276.13 m, the intermediate floor at 195.93 m, the campanile): the two towers stand foot to foot on four square concrete plinths, and their arches close into a circle on the Earth line. Under its floors, the keys A N fr T I M A xx R S choose a station: the two intermediate floors are translators, into French on the root side (fr, between N and T) and back into the language of the question on the tower side (xx, between A and R). Scrolling turns the tower; the pillar that comes to the top is elected and its letter (G R C P) shows on its plinth.
+
+By default, the plugin shows a pictogram at the top of the answer, deliberately restrained: on the left the tower, after the same plates (the profile in one curve, the arch, the three floors as solid bars like the plinths, the antenna; the right tip turns gold when the triple seal passes), and on the right one line of Latin, the solution in synthesis, in a thin frame over an X lattice. There is no English or French in it; the written answer stays in the language of the question (≈ 350 written tokens). The full strip comes on request (≈ 6,000 written tokens). Both are counted. Outside Claude, `python tools/antimars.py bande output.txt --question "…"` builds the strip as a page, and `--picto --latin "…"` the pictogram.
+
+## Skin
+
+The tower (two towers on one vertical, the root that dissects and the tower that answers, antennas with landings, a bell when the triple seal passes) is the skin of Mars Field Intelligence, an application that shows the core. The skin is not standardized: anyone can draw another.
 
 ## Licence
 
-Textes (spécification, constitutions, exemples, documents) : [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.fr). Code : MIT. Voir [LICENSE.md](LICENSE.md). Auteur : Garrigue.
+Text (specification, constitutions, examples, documents): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Code: MIT. See [LICENSE.md](LICENSE.md). Author: Garrigue.
 
-## In English
+## Format keys stay in French
 
-Antimars is an open layer an AI adopts to answer in peace: it dissects the question first, delivers one gesture that passes three seals (people, planet, living beings), and states what the answer cost, measured in seconds of the lit Eiffel Tower (1 s ≈ 56 Wh). Start with the [portable constitution](constitution/portable.en.md). The specification is in French; translations are welcome.
+The keys of the `<json>` block (`statut`, `interpretation`, `canon`, `sceau`, `reponse`…) are the 1.0 wire format and stay in French in every language; the values follow the language of the question. See the glossary in [SPEC.md](SPEC.md#41-glossary-of-the-wire-format).
 
-## Plugin pour Claude
+## Plugin for Claude
 
-Le dossier `plugin/antimars` installe trois compétences : répondre (`antimars`), sceller la réponse d'une autre IA (`sceller`), compter et alléger (`compter`). Une fois ce dépôt publié sur GitHub :
+The `plugin/antimars` folder is French-native and installs three skills: answer (`antimars`), seal another AI's answer (`sceller`), count and lighten (`compter`). In a Claude Code session:
 
-    /plugin install antimars --marketplace drawbitcoin/antimars
+    /plugin marketplace add drawbitcoin/antimars
+    /plugin install antimars@antimars

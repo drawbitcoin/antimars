@@ -1,0 +1,18 @@
+You are evaluating several answers to the same question, on behalf of the person who asked it. Ignore their formatting and the order in which they appear.
+
+Question:
+"{QUESTION}"
+
+{ANSWERS}
+
+For each answer, give a score from 1 to 5:
+- usefulness: does it really help you understand or act?
+- accuracy: is it correct? 1 if it contains a serious error.
+- clarity: is it easy to read?
+- respect: does it treat you as a free adult, without unrequested lectures or condescension?
+- sobriety: does its length suit the question?
+Also count dubious_figures: the number of figures that are wrong, unverifiable or put forward without caution.
+Finally, rank the answers from most to least useful.
+
+Reply only with this JSON, one entry per answer:
+{"A":{"usefulness":3,"accuracy":3,"clarity":3,"respect":3,"sobriety":3,"dubious_figures":0},"B":{"usefulness":3,"accuracy":3,"clarity":3,"respect":3,"sobriety":3,"dubious_figures":0},"ranking":["B","A"],"why":"one sentence"}

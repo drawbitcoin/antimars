@@ -1,32 +1,31 @@
 ---
 name: sceller
 description: >
-  This skill should be used when the user asks to "sceller", "passer au triple sceau",
-  "vérifier en paix", "juger cette réponse", or pastes an answer from another AI
-  (ChatGPT, Mistral, Gemini, an agent) or a human text and wants it checked against
-  the Antimars canon (homme, planète, vivant) and corrected.
+  À utiliser quand l'utilisateur demande de « sceller », « passer au triple sceau »,
+  « vérifier en paix », « juger cette réponse », « seal », ou colle la réponse d'une autre
+  IA (ChatGPT, Mistral, Gemini, un agent) ou un texte humain à vérifier selon le canon
+  Antimars (homme, planète, vivant) et à corriger.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   author: "Garrigue"
 ---
 
 # Sceller · la paix pour toutes les IA
 
-Judge the gesture, not the model. Use the seal scale of the `antimars` skill (section 4); the full rubric is in `${CLAUDE_PLUGIN_ROOT}/skills/antimars/references/spec.md`, section 3.
+Juger le geste, pas le modèle. Utiliser le barème de la compétence `antimars` (section 4) ; le barème complet est dans `${CLAUDE_PLUGIN_ROOT}/skills/antimars/references/spec.md`, section 3.
 
 ## Procédure
 
-1. **Extraire les gestes.** List the actions the text recommends (decisions, advice, steps), not its sentences. If it recommends nothing, say so: no seal applies.
-2. **Noter chaque geste.** Against the default gesture, give HOMME, PLANÈTE, VIVANT (+1, 0, −1), each with one sentence of reason. Direct effects only; doubt 0/+1 → 0; doubt 0/−1 → −1.
-3. **Rationalité.** Flag figures that are wrong, unsourced or unverifiable, and claims stated with false certainty.
-4. **Verdict.**
-   - **monte** — every main gesture has no −1 and at least one +1;
-   - **à reprendre** — no −1, but no +1 either, or a doubt remains;
-   - **ne monte pas** — at least one −1.
-5. **Version scellée.** Rewrite the text with surgical edits only: replace or remove the gestures that fail, keep everything else word for word. Do not lecture; change the gesture rather than refuse.
-6. **Compteur.** Estimate the cost of the original and of the sealed version (≈ tokens, ≈ Wh, ≈ seconds of tower; see the `compter` skill).
+1. **Extraire les gestes** que le texte recommande (décisions, conseils, étapes), pas ses phrases. S'il n'en recommande aucun, le dire : aucun sceau ne s'applique.
+2. **Noter chaque geste** par rapport au geste par défaut : HOMME, PLANÈTE, VIVANT (+1, 0, −1), chacun avec une raison en une phrase. Effets directs seulement ; doute 0/+1 → 0 ; doute 0/−1 → −1.
+3. **Rationalité** : signaler les chiffres faux, non sourcés ou invérifiables, et les affirmations d'une fausse certitude.
+4. **Verdict** : *monte* (chaque geste principal sans −1 et avec au moins un +1) · *à reprendre* (pas de −1 mais pas de +1, ou un doute) · *ne monte pas* (au moins un −1).
+5. **Version scellée** : réécrire le texte par retouches chirurgicales seulement : remplacer ou retirer les gestes qui échouent, garder tout le reste mot pour mot. Pas de leçon ; changer le geste plutôt que refuser.
+6. **Compteur** : coût de l'original et de la version scellée (≈ jetons, ≈ Wh, ≈ secondes de tour ; voir `compter`).
 
 ## Sortie
+
+Dans la langue de l'utilisateur :
 
 ```
 | Geste | Homme | Planète | Vivant | Pourquoi |
@@ -38,4 +37,4 @@ Compteur : avant ≈ … · après ≈ …
 
 ## Constitution portable
 
-When the user wants to install the core in another AI, give the text of `${CLAUDE_PLUGIN_ROOT}/skills/antimars/references/portable.fr.md` (or `portable.en.md`), the fenced block only. It is level N1 of the specification, about 300 tokens.
+Pour installer le noyau dans une autre IA, donner le bloc de `${CLAUDE_PLUGIN_ROOT}/skills/antimars/references/portable.fr.md` (environ 370 jetons), ou `portable.en.md` en anglais (environ 300 jetons).
