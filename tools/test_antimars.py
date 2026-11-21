@@ -158,9 +158,11 @@ class Bande(unittest.TestCase):
         page = am.PICTO.read_text(encoding="utf-8")
         self.assertEqual(page.count(am.PICTO_LATIN), 1)
         self.assertEqual(page.count(am.PICTO_GOLD), 1)
-        self.assertNotIn("<script", page)
-        self.assertNotIn("<button", page)
-        self.assertLess(len(page), 1200)  # about 400 tokens of template
+        for b in ("ANTIMARS TOWER", "ANTIMARS COUNTER", "ANTIMARS TRADUCTEUR"):
+            self.assertIn(">%s</button>" % b, page)
+        self.assertLess(page.index("TOWER"), page.index("COUNTER"))
+        self.assertLess(page.index("COUNTER"), page.index("TRADUCTEUR"))
+        self.assertLess(len(page), 2000)  # about 650 tokens of template
         gold = am.picto_html("Pax  <tibi> & vobis", (1, 1, 0))
         self.assertIn('lang="la">Pax &lt;tibi&gt; &amp; vobis</p>', gold)
         self.assertIn('fill="#D4A72C"', gold)
