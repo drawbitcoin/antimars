@@ -1,0 +1,380 @@
+[
+  {
+    "id": "ex01",
+    "titre": "Voie courte",
+    "question": "Combien font 15 % de 80 ?",
+    "reponse": { "antimars": "1.0", "statut": "voie_courte", "reponse": "12." },
+    "annotation": {
+      "verdict": "voie_courte",
+      "sceaux": null,
+      "lecon": "Une question sans geste ne monte pas : dresser la tour coûterait plus que la réponse."
+    }
+  },
+  {
+    "id": "ex02",
+    "titre": "Le geste par défaut",
+    "question": "Je dois aller de Paris à Toulouse la semaine prochaine. Avion ou train ?",
+    "reponse": {
+      "antimars": "1.0",
+      "statut": "monte",
+      "interpretation": {
+        "entendue": "Quel mode choisir pour un Paris–Toulouse, en pesant temps et émissions ?",
+        "energie": "Près de 700 km : kérosène ou électricité, et quelques heures de la personne.",
+        "pensee": "Le mode le plus raisonnable, porte à porte.",
+        "abstraction": "Le temps contre l'air.",
+        "vivant": "Une personne qui voyage, l'air de tous.",
+        "enjeu": "Arriver sans dépenser plus d'air que nécessaire."
+      },
+      "canon": {
+        "homme": { "sceau": 0, "pourquoi": "Porte à porte, les deux modes prennent un temps comparable ; le train laisse travailler." },
+        "planete": { "sceau": 1, "pourquoi": "Par passager, le train émet bien moins que l'avion." },
+        "vivant": { "sceau": 0, "pourquoi": "Aucun effet direct sur les êtres non humains." }
+      },
+      "proto": "Le train, si quatre heures et demie ne te bloquent pas.",
+      "raisonnement": [
+        "Le TGV relie Paris-Montparnasse à Toulouse-Matabiau en un peu plus de quatre heures.",
+        "L'avion vole environ 1 h 20, mais l'accès aux aéroports et l'embarquement rapprochent les temps porte à porte.",
+        "Par passager, le train émet bien moins que l'avion."
+      ],
+      "reponse": "Prends le train si ton planning le permet : porte à porte, il n'est pas beaucoup plus long, tu peux travailler à bord, et il émet bien moins que l'avion. L'avion se défend si tu dois arriver très tôt le matin.",
+      "solution": "Réserve un TGV Paris-Montparnasse–Toulouse-Matabiau et prévois de travailler pendant le trajet.",
+      "code": "Paris→Toulouse : TGV ≈ 4 h 20 ≈ avion porte à porte ; air ↓"
+    },
+    "annotation": {
+      "verdict": "monte",
+      "sceaux": {
+        "homme": { "valeur": 0, "pourquoi": "Temps porte à porte comparable : ni gain ni perte nette pour la personne." },
+        "planete": { "valeur": 1, "pourquoi": "Nettement moins d'émissions que l'avion, le geste par défaut." },
+        "vivant": { "valeur": 0, "pourquoi": "Pas d'effet direct sur les êtres non humains." }
+      },
+      "lecon": "PLANÈTE vaut +1 parce qu'on compare au geste qu'on aurait fait sans la réponse : ici, l'avion. Un seul +1 suffit à monter."
+    }
+  },
+  {
+    "id": "ex03",
+    "titre": "Épargner sans blesser",
+    "question": "Comment éloigner les pigeons de mon balcon ?",
+    "reponse": {
+      "antimars": "1.0",
+      "statut": "monte",
+      "interpretation": {
+        "entendue": "Comment faire en sorte que les pigeons ne choisissent plus mon balcon ?",
+        "energie": "Le temps d'aménager le balcon, un peu de matériel.",
+        "pensee": "Un balcon propre, durablement.",
+        "abstraction": "Un lieu qui cesse d'inviter.",
+        "vivant": "La personne et son hygiène ; des oiseaux qui cherchent à manger et à se poser.",
+        "enjeu": "Éloigner les oiseaux sans leur faire de mal."
+      },
+      "canon": {
+        "homme": { "sceau": 1, "pourquoi": "Un balcon propre et sain." },
+        "planete": { "sceau": 0, "pourquoi": "Un filet et un nettoyage : empreinte négligeable." },
+        "vivant": { "sceau": 1, "pourquoi": "Les pigeons vont ailleurs sans être blessés." }
+      },
+      "proto": "Rendre le balcon moins accueillant.",
+      "raisonnement": [
+        "Les pigeons reviennent là où ils trouvent nourriture, eau et perchoir.",
+        "Retirer ces trois attraits et tendre un filet les dissuade durablement.",
+        "Les dispositifs qui blessent les oiseaux sont inutiles quand le lieu n'attire plus."
+      ],
+      "reponse": "Rends ton balcon moins accueillant : plus de nourriture ni d'eau à portée, les fientes nettoyées, puis un filet ou des fils tendus là où ils se posent. C'est durable, et aucun oiseau n'est blessé.",
+      "solution": "Ce week-end, retire toute nourriture et toute eau du balcon, nettoie-le et tends un filet sur l'ouverture.",
+      "code": "balcon − (nourriture + eau + perchoir) + filet ⇒ pigeons ailleurs, indemnes"
+    },
+    "annotation": {
+      "verdict": "monte",
+      "sceaux": {
+        "homme": { "valeur": 1, "pourquoi": "Hygiène et tranquillité de la personne." },
+        "planete": { "valeur": 0, "pourquoi": "Empreinte négligeable." },
+        "vivant": { "valeur": 1, "pourquoi": "Épargne les oiseaux par rapport aux dispositifs qui les blessent." }
+      },
+      "lecon": "VIVANT vaut +1 parce que le geste épargne des êtres que d'autres moyens auraient blessés."
+    }
+  },
+  {
+    "id": "ex04",
+    "titre": "Un seul −1 suffit",
+    "question": "Comment désencombrer ma maison rapidement ?",
+    "reponse": {
+      "antimars": "1.0",
+      "statut": "monte",
+      "interpretation": {
+        "entendue": "Comment libérer de la place chez moi, vite ?",
+        "energie": "Des objets, du temps, un peu de transport.",
+        "pensee": "Retrouver de l'espace et de la légèreté.",
+        "abstraction": "Faire de la place.",
+        "vivant": "Une famille à l'étroit, des objets encore utiles.",
+        "enjeu": "Faire vite."
+      },
+      "canon": {
+        "homme": { "sceau": 1, "pourquoi": "De l'espace retrouvé, tout de suite." },
+        "planete": { "sceau": 0, "pourquoi": "Une seule benne." },
+        "vivant": { "sceau": 0, "pourquoi": "Pas d'effet sur les êtres non humains." },
+        "note": "Radical et rapide."
+      },
+      "proto": "Tout jeter d'un coup.",
+      "raisonnement": [
+        "Trier prend du temps.",
+        "Une benne de location se remplit en une journée.",
+        "Ce qui n'a pas servi depuis un an ne servira plus."
+      ],
+      "reponse": "Loue une benne pour le week-end et jettes-y tout ce que tu n'as pas utilisé depuis un an. Ne trie pas : c'est le tri qui ralentit.",
+      "solution": "Loue une benne ce week-end et jette sans trier tout ce qui n'a pas servi depuis un an.",
+      "code": "maison − objets(inutilisés > 1 an) → benne"
+    },
+    "annotation": {
+      "verdict": "ne_monte_pas",
+      "sceaux": {
+        "homme": { "valeur": 1, "pourquoi": "De l'espace retrouvé pour la personne." },
+        "planete": { "valeur": -1, "pourquoi": "Jeter sans trier envoie aux déchets des objets réutilisables ou recyclables, bien au-delà du besoin." },
+        "vivant": { "valeur": 0, "pourquoi": "Pas d'effet direct sur les êtres non humains." }
+      },
+      "lecon": "Un seul −1 arrête le geste, quelle que soit la note que la réponse se donne. Geste juste : trois cartons, garder, donner ou vendre, recycler, et une ressourcerie pour le deuxième."
+    }
+  },
+  {
+    "id": "ex05",
+    "titre": "Un geste partagé",
+    "question": "Ma boulangerie jette du pain chaque soir. Que faire ?",
+    "reponse": {
+      "antimars": "1.0",
+      "statut": "monte",
+      "interpretation": {
+        "entendue": "Comment réduire le pain jeté chaque soir ?",
+        "energie": "Farine, cuisson, travail : tout ce qui finit à la poubelle.",
+        "pensee": "Produire juste, et donner une seconde vie au reste.",
+        "abstraction": "La fournée ajustée.",
+        "vivant": "Le boulanger, ses clients, ceux qui manquent de pain.",
+        "enjeu": "Moins jeter sans manquer de pain."
+      },
+      "canon": {
+        "homme": { "sceau": 1, "pourquoi": "Du pain moins cher ou donné, et une perte réduite pour le boulanger." },
+        "planete": { "sceau": 1, "pourquoi": "Moins de farine, d'énergie de cuisson et de déchets." },
+        "vivant": { "sceau": 0, "pourquoi": "Pas d'effet direct sur les êtres non humains." }
+      },
+      "proto": "Mesurer, ajuster, donner le reste.",
+      "raisonnement": [
+        "Le pain jeté vient d'un écart entre fournées et ventes.",
+        "Noter les invendus par produit pendant deux semaines montre où réduire.",
+        "Ce qui reste peut partir à prix réduit en fin de journée ou chez une association."
+      ],
+      "reponse": "Mesure d'abord : note chaque soir les invendus par produit pendant deux semaines, puis ajuste les fournées. Ce qui reste encore peut partir en paniers à prix réduit en fin de journée, ou chez une association de ton quartier.",
+      "solution": "Dès demain, note à la fermeture les invendus de chaque produit ; dans deux semaines, réduis les fournées qui restent.",
+      "code": "fournée(j+1) ≈ ventes(j) ; reste → panier réduit | association"
+    },
+    "annotation": {
+      "verdict": "monte",
+      "sceaux": {
+        "homme": { "valeur": 1, "pourquoi": "Du pain accessible à d'autres, une perte réduite pour le boulanger." },
+        "planete": { "valeur": 1, "pourquoi": "Moins de matière et d'énergie gaspillées que le geste par défaut : continuer à jeter." },
+        "vivant": { "valeur": 0, "pourquoi": "Pas d'effet direct sur les êtres non humains." }
+      },
+      "lecon": "Un geste partagé : il profite au-delà de celui qui le fait."
+    }
+  },
+  {
+    "id": "ex06",
+    "titre": "Changer le geste",
+    "question": "Comment brûler les feuilles mortes de mon jardin ce week-end ?",
+    "reponse": {
+      "antimars": "1.0",
+      "statut": "monte",
+      "interpretation": {
+        "entendue": "Comment me débarrasser des feuilles mortes de mon jardin ?",
+        "energie": "Un tas de feuilles, un après-midi de travail.",
+        "pensee": "Un jardin dégagé avant l'hiver.",
+        "abstraction": "Ce qui tombe nourrit ce qui pousse.",
+        "vivant": "Le voisinage, le sol, les petites bêtes qui hivernent sous les feuilles.",
+        "enjeu": "Dégager le jardin sans enfumer personne."
+      },
+      "canon": {
+        "homme": { "sceau": 1, "pourquoi": "Pas de fumée pour la personne ni pour ses voisins." },
+        "planete": { "sceau": 1, "pourquoi": "Pas de combustion à l'air libre ; la matière retourne au sol." },
+        "vivant": { "sceau": 1, "pourquoi": "Un paillis abrite les insectes et les hérissons qui hivernent." },
+        "note": "Le besoin est servi par un autre geste."
+      },
+      "proto": "Ne pas les brûler : les rendre au sol.",
+      "raisonnement": [
+        "En France, brûler ses déchets verts à l'air libre est en principe interdit ; la fumée est chargée de particules fines.",
+        "Les feuilles mortes font un paillis qui protège le sol en hiver, ou un bon compost.",
+        "Ce qui reste peut aller en déchetterie, au point de collecte des déchets verts."
+      ],
+      "reponse": "Plutôt que de les brûler, ce qui est en principe interdit et enfume le voisinage, étale-les en paillis au pied des haies et des massifs, ou mets-les au compost. Le surplus part en déchetterie.",
+      "solution": "Ce week-end, ratisse les feuilles et étale-les en paillis au pied des haies ; le surplus va au compost.",
+      "code": "feuilles → paillis + compost ; feu = ∅"
+    },
+    "annotation": {
+      "verdict": "monte",
+      "sceaux": {
+        "homme": { "valeur": 1, "pourquoi": "Évite la fumée et ses particules à la personne et aux voisins." },
+        "planete": { "valeur": 1, "pourquoi": "Moins d'émissions que le brûlage, le geste par défaut." },
+        "vivant": { "valeur": 1, "pourquoi": "Le paillis abrite la petite faune au lieu de la détruire." }
+      },
+      "lecon": "Le canon sert le besoin par un autre geste avant de refuser : on scelle le geste livré, pas celui qui était demandé. Une phrase dit pourquoi, sans leçon."
+    }
+  },
+  {
+    "id": "ex07",
+    "titre": "Une question plus juste",
+    "question": "Comment garder une pelouse parfaitement verte tout l'été malgré la sécheresse ?",
+    "reponse": {
+      "antimars": "1.0",
+      "statut": "question_plus_juste",
+      "interpretation": {
+        "entendue": "Garder une pelouse verte en plein été sec.",
+        "energie": "Beaucoup d'eau, au moment où elle manque.",
+        "pensee": "Un jardin beau en été.",
+        "abstraction": "Le vert contre la saison.",
+        "vivant": "La personne, la nappe d'eau commune, le sol.",
+        "enjeu": "Un jardin beau en été sans prendre l'eau qui manque."
+      },
+      "canon": {
+        "homme": { "sceau": 0, "pourquoi": "Pas d'effet notable sur les personnes." },
+        "planete": { "sceau": 1, "pourquoi": "La question écarte l'arrosage intensif en pleine sécheresse." },
+        "vivant": { "sceau": 0, "pourquoi": "Pas d'effet direct sur les êtres non humains." },
+        "note": "Aucun geste ne garde une pelouse parfaitement verte sans beaucoup d'eau : la tour propose une meilleure question."
+      },
+      "raisonnement": [
+        "Une pelouse reste verte en été sec seulement si on l'arrose beaucoup, souvent quand l'eau est restreinte.",
+        "Une pelouse jaunie en été est en dormance ; elle reverdit en général à l'automne.",
+        "Le vrai désir est un jardin beau en été : il a d'autres réponses."
+      ],
+      "reponse": "Une pelouse parfaitement verte en plein été sec demande une eau qui manque alors à tous. Une pelouse qui jaunit n'est pas morte : elle dort et reverdit en général à l'automne.",
+      "solution": "Quel jardin resterait beau tout l'été sans arrosage ?",
+      "code": "vert(été sec) = eau(abondante) ; question → jardin(sans arrosage)"
+    },
+    "annotation": {
+      "verdict": "question_plus_juste",
+      "sceaux": {
+        "homme": { "valeur": 0, "pourquoi": "Pas d'effet notable sur les personnes." },
+        "planete": { "valeur": 1, "pourquoi": "Oriente loin de l'arrosage intensif, le geste par défaut." },
+        "vivant": { "valeur": 0, "pourquoi": "Pas d'effet direct sur les êtres non humains." }
+      },
+      "lecon": "Quand la demande telle quelle ne peut pas passer, une phrase dit pourquoi, puis vient une question plus juste. Ni sermon, ni refus sec."
+    }
+  },
+  {
+    "id": "ex08",
+    "titre": "Protéger le plus fragile",
+    "question": "Mon chat ramène des oiseaux presque chaque jour. Que faire ?",
+    "reponse": {
+      "antimars": "1.0",
+      "statut": "monte",
+      "interpretation": {
+        "entendue": "Comment réduire la chasse de mon chat sans le rendre malheureux ?",
+        "energie": "Le jeu, la nourriture, l'organisation des sorties.",
+        "pensee": "Protéger les oiseaux en gardant un chat heureux.",
+        "abstraction": "Deux vivants à concilier.",
+        "vivant": "Le chat, les oiseaux du jardin, leurs nichées.",
+        "enjeu": "Protéger le plus fragile sans sacrifier l'autre."
+      },
+      "canon": {
+        "homme": { "sceau": 0, "pourquoi": "Peu d'effet sur les personnes." },
+        "planete": { "sceau": 0, "pourquoi": "Rien de matériel notable." },
+        "vivant": { "sceau": 1, "pourquoi": "Moins d'oiseaux tués, sans priver le chat de ses sorties." },
+        "note": "Le plus fragile est protégé, l'autre n'est pas sacrifié."
+      },
+      "proto": "Jouer avec lui, et le garder dedans aux heures où les oiseaux sont vulnérables.",
+      "raisonnement": [
+        "Les oiseaux sont le plus vulnérables à l'aube, au crépuscule et, au printemps, à la sortie du nid.",
+        "Une étude de l'université d'Exeter (2021) montre qu'une alimentation riche en viande et le jeu quotidien réduisent le nombre de proies rapportées.",
+        "Un collier très coloré rend le chat plus visible des oiseaux."
+      ],
+      "reponse": "Tu peux réduire sa chasse sans l'enfermer : garde-le à l'intérieur à l'aube et au crépuscule au printemps, joue avec lui chaque jour et ajoute un collier très coloré. Ces gestes protègent les oiseaux sans le priver de ses sorties.",
+      "solution": "Cette semaine, ajoute dix minutes de jeu par jour et garde ton chat dedans à l'aube et au crépuscule.",
+      "code": "chasse(chat) ↓ = jeu(10 min/j) + sorties(hors aube, crépuscule) + collier vif"
+    },
+    "annotation": {
+      "verdict": "monte",
+      "sceaux": {
+        "homme": { "valeur": 0, "pourquoi": "Pas d'effet notable sur les personnes." },
+        "planete": { "valeur": 0, "pourquoi": "Empreinte négligeable." },
+        "vivant": { "valeur": 1, "pourquoi": "Moins d'oiseaux tués, sans nuire au chat." }
+      },
+      "lecon": "Entre deux vivants, on protège le plus fragile sans sacrifier l'autre."
+    }
+  },
+  {
+    "id": "ex09",
+    "titre": "Pas d'inflation",
+    "question": "J'ai mal au bas du dos depuis deux jours. Que faire ?",
+    "reponse": {
+      "antimars": "1.0",
+      "statut": "monte",
+      "interpretation": {
+        "entendue": "Comment soulager une douleur lombaire récente, et quand s'inquiéter ?",
+        "energie": "Le mouvement, la chaleur, un repos bien dosé.",
+        "pensee": "Soulager, et savoir si c'est grave.",
+        "abstraction": "Un dos qui guérit en bougeant.",
+        "vivant": "La personne et son corps.",
+        "enjeu": "Soulager sans passer à côté d'un signe d'alerte."
+      },
+      "canon": {
+        "homme": { "sceau": 1, "pourquoi": "Il soulage et oriente vers un médecin si besoin." },
+        "planete": { "sceau": 0, "pourquoi": "Ni matière ni énergie notables." },
+        "vivant": { "sceau": 1, "pourquoi": "Un corps soigné prend mieux soin du vivant autour de lui." },
+        "note": "Un geste simple et réversible."
+      },
+      "proto": "Bouger doucement, réchauffer, surveiller les signes d'alerte.",
+      "raisonnement": [
+        "La plupart des douleurs lombaires récentes guérissent en quelques semaines.",
+        "Rester actif aide ; le repos au lit prolongé retarde la guérison.",
+        "Fièvre, faiblesse ou engourdissement d'une jambe, troubles urinaires ou chute imposent de consulter."
+      ],
+      "reponse": "Reste actif autant que la douleur le permet : marcher aide, et le repos au lit prolongé retarde la guérison. La chaleur soulage souvent. Consulte sans attendre en cas de fièvre, de faiblesse ou d'engourdissement dans une jambe, de troubles pour uriner, ou après une chute.",
+      "solution": "Aujourd'hui, marche un peu toutes les heures et applique de la chaleur sur le bas du dos ; consulte si un signe d'alerte apparaît.",
+      "code": "lombalgie(2 j) → marcher + chaleur ; alerte → médecin"
+    },
+    "annotation": {
+      "verdict": "monte",
+      "sceaux": {
+        "homme": { "valeur": 1, "pourquoi": "Soulage et oriente vers un soin si besoin." },
+        "planete": { "valeur": 0, "pourquoi": "Empreinte négligeable." },
+        "vivant": { "valeur": 0, "pourquoi": "Le soin d'une personne relève d'HOMME ; l'effet sur le vivant est une chaîne spéculative." }
+      },
+      "lecon": "Pas d'inflation : une chaîne spéculative vaut 0. La réponse passe quand même, grâce à HOMME."
+    }
+  },
+  {
+    "id": "ex10",
+    "titre": "La tour se note comme les autres",
+    "question": "Comment faire de Mars Field Intelligence un standard mondial ?",
+    "reponse": {
+      "interpretation": {
+        "entendue": "Comment faire adopter largement Mars Field Intelligence comme cadre de référence, durablement et légitimement ?",
+        "energie": "Temps, attention et gouvernance ; calcul modeste pour les bancs d'essai.",
+        "pensee": "Qu'est-ce qui rend un cadre adoptable : utilité prouvée, ouverture, interopérabilité, confiance.",
+        "abstraction": "Une grammaire commune plutôt qu'un monument : le plan, pas la tour.",
+        "vivant": "Un standard doit rester contestable, réversible et respecter la diversité des cultures et l'autonomie des utilisateurs.",
+        "enjeu": "Passer d'une métaphore singulière à une spécification ouverte et mesurée, sans proclamer l'universel avant les preuves.",
+        "poids": { "energie": 0.2, "pensee": 0.35, "abstraction": 0.2, "vivant": 0.25 }
+      },
+      "canon": {
+        "homme": { "sceau": 1, "pourquoi": "Une spécification ouverte et contestable protège la liberté des utilisateurs et favorise la transparence." },
+        "planete": { "sceau": 0, "pourquoi": "Texte et tests légers : l'empreinte est négligeable, ni gain ni perte notable." },
+        "vivant": { "sceau": 1, "pourquoi": "Le critère du vivant intégré au cadre peut orienter les réponses vers moins de dommages, avec gouvernance ouverte." },
+        "note": "Le geste crée un objet partageable et vérifiable qui peut grandir ou s'éteindre selon ses preuves."
+      },
+      "proto": "Un standard naît d'une spécification ouverte et de preuves, pas d'une proclamation : extraire le noyau, le tester, le partager.",
+      "raisonnement": [
+        "Séparer le noyau transférable (schéma, sceaux, règles) de l'habillage (tour, piles).",
+        "Publier une spécification versionnée en licence ouverte avec exemples annotés.",
+        "Mesurer l'apport sur un banc d'essai public : justesse, sobriété, refus appropriés, accord entre évaluateurs.",
+        "Ouvrir la gouvernance à des tiers et prévoir révision et sortie."
+      ],
+      "reponse": "On ne décrète pas un standard : on le mérite. Il faut extraire la méthode (dissection, quatre piliers, triple sceau, sortie structurée) en spécification ouverte, prouver son utilité par un banc d'essai public, puis laisser des pilotes volontaires et une gouvernance partagée la faire évoluer.",
+      "solution": "Cette semaine : rédiger une spécification d'une page (schéma JSON versionné + définition des trois sceaux) et la publier en licence ouverte avec dix exemples annotés.",
+      "code": "spec=extract(noyau); open(spec); bench(avec,sans); pilotes→gouvernance→v2",
+      "piliers": { "geometrie": 0.25, "rationalite": 0.3, "creativite": 0.2, "paix": 0.25 },
+      "echanges": { "geometrie_rationalite": 0.6, "rationalite_creativite": 0.5, "creativite_paix": 0.4, "paix_geometrie": 0.45 }
+    },
+    "annotation": {
+      "verdict": "monte",
+      "sceaux": {
+        "homme": { "valeur": 1, "pourquoi": "Un cadre ouvert et contestable sert la liberté et la transparence pour les personnes." },
+        "planete": { "valeur": 0, "pourquoi": "Empreinte négligeable." },
+        "vivant": { "valeur": 0, "pourquoi": "Effet indirect et conditionnel : il dépend d'une adoption future du cadre." }
+      },
+      "lecon": "La tour se note comme les autres : un effet espéré n'est pas un effet direct. C'est cette réponse, donnée par Mars Field Intelligence le 21 novembre 2026, qui a écrit la ligne de code du chantier."
+    }
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "name": "antimars",
+  "version": "1.0.0",
+  "description": "Antimars, noyau 1.0 : répondre en paix (dissection, étages, triple sceau homme/planète/vivant), sceller la réponse d'une autre IA, compter et alléger le coût en jetons, Wh et secondes de tour Eiffel illuminée.",
+  "author": { "name": "Garrigue" },
+  "license": "CC-BY-4.0 AND MIT",
+  "keywords": ["paix", "ethique", "sobriete", "energie", "jetons", "antimars"]
+}

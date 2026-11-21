@@ -1,0 +1,11 @@
+{
+  "name": "antimars",
+  "owner": { "name": "Garrigue" },
+  "plugins": [
+    {
+      "name": "antimars",
+      "source": "./plugin/antimars",
+      "description": "Antimars, noyau 1.0 : répondre en paix, sceller la réponse d'une autre IA, compter le coût en secondes de tour Eiffel illuminée."
+    }
+  ]
+}

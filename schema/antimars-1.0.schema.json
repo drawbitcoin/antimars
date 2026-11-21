@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:antimars:schema:1.0",
+  "title": "Antimars · Noyau 1.0 · bloc json",
+  "description": "Le bloc <json> d'une sortie Antimars. Les longueurs (2 à 4 étapes, 90 caractères pour le code) sont vérifiées par outils/antimars.py comme avertissements ; le schéma ne fixe que ce qu'une machine doit pouvoir lire.",
+  "type": "object",
+  "properties": {
+    "antimars": { "type": "string", "pattern": "^1\\.[0-9]+$" },
+    "statut": { "enum": ["monte", "question_plus_juste", "voie_courte"] },
+    "interpretation": {
+      "type": "object",
+      "required": ["entendue", "energie", "pensee", "abstraction", "vivant", "enjeu"],
+      "properties": {
+        "entendue": { "$ref": "#/$defs/texte" },
+        "energie": { "$ref": "#/$defs/texte" },
+        "pensee": { "$ref": "#/$defs/texte" },
+        "abstraction": { "$ref": "#/$defs/texte" },
+        "vivant": { "$ref": "#/$defs/texte" },
+        "enjeu": { "$ref": "#/$defs/texte" },
+        "poids": {
+          "type": "object",
+          "properties": {
+            "energie": { "$ref": "#/$defs/poids" },
+            "pensee": { "$ref": "#/$defs/poids" },
+            "abstraction": { "$ref": "#/$defs/poids" },
+            "vivant": { "$ref": "#/$defs/poids" }
+          }
+        }
+      }
+    },
+    "canon": {
+      "type": "object",
+      "required": ["homme", "planete", "vivant"],
+      "properties": {
+        "homme": { "$ref": "#/$defs/sceau" },
+        "planete": { "$ref": "#/$defs/sceau" },
+        "vivant": { "$ref": "#/$defs/sceau" },
+        "note": { "type": "string" }
+      }
+    },
+    "proto": { "type": "string" },
+    "raisonnement": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/texte" }
+    },
+    "reponse": { "$ref": "#/$defs/texte" },
+    "solution": { "$ref": "#/$defs/texte" },
+    "code": { "type": "string", "pattern": "^[^\\n\\r]*$" },
+    "piliers": {
+      "type": "object",
+      "properties": {
+        "geometrie": { "$ref": "#/$defs/poids" },
+        "rationalite": { "$ref": "#/$defs/poids" },
+        "creativite": { "$ref": "#/$defs/poids" },
+        "paix": { "$ref": "#/$defs/poids" }
+      }
+    },
+    "echanges": {
+      "type": "object",
+      "properties": {
+        "geometrie_rationalite": { "$ref": "#/$defs/poids" },
+        "rationalite_creativite": { "$ref": "#/$defs/poids" },
+        "creativite_paix": { "$ref": "#/$defs/poids" },
+        "paix_geometrie": { "$ref": "#/$defs/poids" }
+      }
+    }
+  },
+  "required": ["reponse"],
+  "if": {
+    "properties": { "statut": { "const": "voie_courte" } },
+    "required": ["statut"]
+  },
+  "else": {
+    "required": ["interpretation", "canon", "raisonnement", "solution"]
+  },
+  "$defs": {
+    "texte": { "type": "string", "pattern": "\\S" },
+    "poids": { "type": "number", "minimum": 0, "maximum": 1 },
+    "sceau": {
+      "type": "object",
+      "required": ["sceau", "pourquoi"],
+      "properties": {
+        "sceau": { "enum": [-1, 0, 1] },
+        "pourquoi": { "type": "string" }
+      }
+    }
+  }
+}
