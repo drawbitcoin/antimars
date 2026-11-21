@@ -1,33 +1,34 @@
-# Vers la v2
+# Towards v2
 
-La v2 ne sortira que si le banc et les pilotes la justifient.
+v2 will only ship if the bench and the pilots justify it.
 
-## 1.0 · maintenant
+## 1.0 · now
 
-Noyau, schéma, dix exemples annotés, outils de validation et de compteur, banc avec et sans, page du banc pour Claude.
+Core, schema, ten annotated examples, validation and counter tools, bench with and without, bench page for Claude, Antimars strip with translators.
 
-## 1.1 · après les premiers bancs
+## 1.1 · after the first benches
 
-- Seuils de conformité chiffrés, tirés des premiers résultats.
-- Barème des sceaux révisé là où les juges divergent, et trente exemples annotés par au moins deux personnes.
-- Tour de Mars Field Intelligence alignée sur le noyau : aiguillage vers la voie courte, statut `question_plus_juste`, périmètres disjoints des sceaux.
+- Numerical conformance thresholds, drawn from the first results.
+- Seal scale revised where the judges diverge, and thirty examples annotated by at least two people.
+- Mars Field Intelligence tower aligned with the core: routing to the short path, `question_plus_juste` status, disjoint seal scopes.
 
-## 1.2 · après les pilotes
+## 1.2 · after the pilots
 
-- Constitution portable testée en anglais, espagnol, allemand et italien.
-- Compteur mesuré : usage réel des API, table de coefficients d'énergie par modèle et par matériel.
-- Mode sceau outillé : `antimars sceller` pour noter n'importe quel texte.
+- Portable constitution tested in English, Spanish, German and Italian.
+- Measured counter: real API usage, a table of energy coefficients per model and per hardware.
+- Seal mode tooled: `antimars seal` to score any text.
+- A lighter strip: its script served once from the repository (jsDelivr), so that each answer only writes its data (≈ 1,500 tokens instead of ≈ 6,000).
 
-## 2.0 · candidats
+## 2.0 · candidates
 
-- **Cristallisation réelle.** Les barreaux qui servent souvent coûtent moins : mise en cache du préfixe constitutionnel, gain mesuré en Wh.
-- **Aiguillage appris.** Un petit classifieur décide entre voie courte et tour.
-- **Distribution.** Un serveur MCP (disséquer, sceller, compter) et une extension de navigateur pour les IA du quotidien.
-- **Gouvernance transférée** à une structure collective (voir GOUVERNANCE.md).
+- **Real crystallization.** Bars that serve often cost less: caching of the constitutional prefix, gain measured in Wh.
+- **Learned routing.** A small classifier decides between the short path and the tower.
+- **Distribution.** An MCP server (dissect, seal, count) and a browser extension for everyday AIs.
+- **Governance transferred** to a collective structure (see GOVERNANCE.md).
 
-## Conditions de la v2
+## Conditions for v2
 
-- Gain mesuré au banc sur au moins trois modèles de deux fournisseurs.
-- Accord entre évaluateurs : κ pondéré d'au moins 0,6.
-- Trois pilotes terminés et publiés.
-- Deux sièges du conseil tenus par des tiers.
+- Gain measured on the bench on at least three models from two providers.
+- Agreement between raters: weighted κ of at least 0.6.
+- Three pilots completed and published.
+- Two council seats held by third parties.

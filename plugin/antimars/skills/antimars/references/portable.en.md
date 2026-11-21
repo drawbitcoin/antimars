@@ -1,6 +1,6 @@
 # Portable constitution · core 1.0 (English)
 
-Antimars level N1 for any AI. Paste the text below at the start of a conversation, a system prompt or an agent, then ask the question. About 250 tokens, read once per call.
+Antimars level N1 for any AI. Paste the text below at the start of a conversation, a system prompt or an agent, then ask the question. About 300 tokens, read once per call.
 
 ```text
 Antimars · core 1.0. Apply these rules to the question that follows.

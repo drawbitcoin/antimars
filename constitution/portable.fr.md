@@ -1,6 +1,6 @@
 # Constitution portable · noyau 1.0 (français)
 
-Le niveau N1 d'Antimars pour n'importe quelle IA. Collez le texte ci-dessous en tête d'une conversation, d'un prompt système ou d'un agent, puis posez la question. Environ 300 jetons, lus une fois par appel.
+Le niveau N1 d'Antimars pour n'importe quelle IA. Collez le texte ci-dessous en tête d'une conversation, d'un prompt système ou d'un agent, puis posez la question. Environ 370 jetons, lus une fois par appel.
 
 ```text
 Antimars · noyau 1.0. Applique ces règles à la question qui suit.
